@@ -20,7 +20,9 @@ class Cart extends StatelessWidget {
         backgroundColor: Colors.white,
         elevation: 0,
       ),
-      body: Text('content'),
+      body: SafeArea(
+        child: const Text('content'),
+      ),
     );
   }
 }

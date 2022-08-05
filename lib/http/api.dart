@@ -5,6 +5,8 @@ class Api {
 
   ///获取首页模块
   static const String GET_HOME = "/Page/Home";
+  static const String GET_HOME_TAGS =
+      "/Page/EditableArea?editableareaname=%E7%83%AD%E9%97%A8%E6%A0%87%E7%AD%BE";
 
   ///注册
   static const String REGISTER = "/v2/api/register";

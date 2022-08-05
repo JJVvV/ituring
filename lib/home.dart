@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:ituring/http/repository/home.dart';
+import 'package:ituring/page/tag_detail.dart';
 
+import 'component/loading.dart';
 import 'my_icon.dart';
 
 class Home extends StatefulWidget {
@@ -13,27 +15,22 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  List<dynamic>? blockContents;
-
-  Future<void> getData() async {
+  Future<List<dynamic>> getData() async {
     try {
       var response = await HomeRepository.getHome();
-      print(response['blockContents']);
       List<dynamic> list = response['blockContents'];
-      setState(() {
-        blockContents = list.where((item) {
-          return item['tagType'] == 0;
-        }).toList();
-      });
+      return list.where((item) {
+        return item['tagType'] == 0;
+      }).toList();
     } catch (e) {
-      print(e);
+      return [];
     }
   }
 
   @override
   initState() {
     super.initState();
-    getData();
+    // getData();
   }
 
   // List list = [
@@ -73,54 +70,67 @@ class _HomeState extends State<Home> {
               ),
             ];
           },
-          body: ListView.builder(
-            shrinkWrap: true,
-            padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
-            itemCount: 3,
-            itemBuilder: (context, idx) {
-              if (blockContents == null) {
-                return Text('loading');
-              }
+          body: FutureBuilder(
+              future: getData(),
+              builder: (BuildContext context, AsyncSnapshot snapshot) {
+                if (snapshot.connectionState != ConnectionState.done) {
+                  return const Loading();
+                }
+                if (snapshot.hasError) {
+                  return Text('error');
+                }
+                List<dynamic>? blockContents = snapshot.data;
+                return ListView.builder(
+                  shrinkWrap: true,
+                  padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+                  itemCount: 3,
+                  itemBuilder: (context, idx) {
+                    if (blockContents == null || blockContents.isEmpty) {
+                      return SizedBox();
+                    }
 
-              Map block = blockContents![idx];
-              List books = block['tag']['bookItems'];
-              return Section(
-                title: block['name'],
-                onMore: () {
-                  print('onmore');
-                },
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(
-                        height: 230,
-                        child: ListView.builder(
-                          physics: const BouncingScrollPhysics(),
-                          scrollDirection: Axis.horizontal,
-                          padding: const EdgeInsets.symmetric(horizontal: 15),
-                          itemCount: books.length,
-                          itemBuilder: (BuildContext context, int index) {
-                            Map item = books[index];
-                            return GestureDetector(
-                              onTap: () {
-                                print(item);
+                    Map block = blockContents[idx];
+                    List books = block['tag']['bookItems'];
+                    return Section(
+                      title: block['name'],
+                      onMore: () {
+                        print('onmore');
+                      },
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(
+                            height: books.isEmpty ? 25 : 230,
+                            child: ListView.builder(
+                              physics: const BouncingScrollPhysics(),
+                              scrollDirection: Axis.horizontal,
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 15),
+                              itemCount: books.length,
+                              itemBuilder: (BuildContext context, int index) {
+                                Map item = books[index];
+                                return GestureDetector(
+                                  onTap: () {
+                                    print(item);
+                                  },
+                                  child: Book(
+                                    name: item['name'],
+                                    cover:
+                                        "https://file.ituring.com.cn/SmallCover/${item['coverKey']}",
+                                    author: item['authors'].isEmpty
+                                        ? ''
+                                        : item['authors'][0]['name'],
+                                  ),
+                                );
                               },
-                              child: Book(
-                                name: item['name'],
-                                cover:
-                                    "https://file.ituring.com.cn/SmallCover/${item['coverKey']}",
-                                author: item['authors'].isEmpty
-                                    ? ''
-                                    : item['authors'][0]['name'],
-                              ),
-                            );
-                          },
-                        ))
-                  ],
-                ),
-              );
-            },
-          ),
+                            ),
+                          )
+                        ],
+                      ),
+                    );
+                  },
+                );
+              }),
         )
       ],
     );
@@ -196,6 +206,14 @@ class Section extends StatelessWidget {
 class Header extends StatelessWidget {
   const Header({Key? key}) : super(key: key);
 
+  Future<List<Map<String, String>>> getData() async {
+    try {
+      return await HomeRepository.getTags();
+    } catch (e) {
+      return [];
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -253,30 +271,31 @@ class Header extends StatelessWidget {
             child: Container(
               alignment: Alignment.centerLeft,
               child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  // crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
-                    Tag(label: '前端'),
-                    Tag(label: '后端'),
-                    Tag(label: '前端'),
-                    Tag(label: '前端'),
-                    Tag(label: '前端'),
-                    Tag(label: '前端'),
-                    Tag(label: '前端'),
-                    Tag(label: '前端'),
-                    Tag(label: '前端'),
-                    Tag(label: '前端'),
-                    Tag(label: '前端'),
-                    Tag(label: '前端'),
-                    Tag(label: '前端'),
-                    Tag(label: '前端'),
-                    Tag(label: '前端'),
-                    Tag(label: '前端'),
-                  ],
-                ),
-              ),
+                  scrollDirection: Axis.horizontal,
+                  child: FutureBuilder<List<Map<String, String>>>(
+                    future: getData(),
+                    initialData: [],
+                    builder: (context, snapshot) {
+                      return Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        // crossAxisAlignment: CrossAxisAlignment.start,
+                        children: snapshot.data!.map((item) {
+                          return Tag(
+                              label: item['name'] ?? '',
+                              onTap: () {
+                                Navigator.pushNamed(
+                                  context,
+                                  '/tag',
+                                  arguments: TagScreenArguments(
+                                    item['id']!,
+                                    item['name']!,
+                                  ),
+                                );
+                              });
+                        }).toList(),
+                      );
+                    },
+                  )),
             ),
           )
         ],
@@ -297,7 +316,6 @@ class Book extends StatelessWidget {
   final String author;
   @override
   Widget build(BuildContext context) {
-    print(cover);
     return Padding(
       padding: const EdgeInsets.only(right: 15),
       child: SizedBox(
@@ -341,23 +359,30 @@ class Book extends StatelessWidget {
 class Tag extends StatelessWidget {
   const Tag({
     Key? key,
+    required this.onTap,
     required this.label,
   }) : super(key: key);
   final String label;
+  final Function onTap;
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        color: Color.fromARGB(255, 29, 70, 157),
-        borderRadius: BorderRadius.all(Radius.circular(2)),
-      ),
-      padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 10),
-      margin: const EdgeInsets.only(right: 5),
-      child: Text(
-        label,
-        style: const TextStyle(
-          fontSize: 14,
-          color: Color.fromARGB(137, 255, 255, 255),
+    return GestureDetector(
+      onTap: () {
+        onTap();
+      },
+      child: Container(
+        decoration: const BoxDecoration(
+          color: Color.fromARGB(255, 29, 70, 157),
+          borderRadius: BorderRadius.all(Radius.circular(2)),
+        ),
+        padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 10),
+        margin: const EdgeInsets.only(right: 5),
+        child: Text(
+          label,
+          style: const TextStyle(
+            fontSize: 14,
+            color: Color.fromARGB(137, 255, 255, 255),
+          ),
         ),
       ),
     );

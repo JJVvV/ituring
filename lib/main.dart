@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:ituring/index.dart';
+import 'package:ituring/page/tag_detail.dart';
 
-import 'cart.dart';
+import 'page/cart.dart';
 
 void main() {
   runApp(const MyApp());
@@ -21,14 +22,8 @@ class MyApp extends StatelessWidget {
       routes: {
         '/': (context) => initialFunction(),
         '/book': (context) => Text('book page'),
-        '/tag': (context) => Text('tag page'),
+        '/tag': (context) => TagDetail(),
         '/cart': (context) => Cart(),
-        // '/setting': (context) => const SettingPage(),
-        // '/about': (context) => AboutScreen(),
-        // '/playlists': (context) => PlaylistScreen(),
-        // '/nowplaying': (context) => NowPlaying(),
-        // '/recent': (context) => RecentlyPlayed(),
-        // '/downloads': (context) => const Downloads(),
       },
     );
   }
