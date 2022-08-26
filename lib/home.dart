@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:ituring/http/repository/home.dart';
-import 'package:ituring/page/tag_detail.dart';
 
+import 'component/header.dart';
 import 'component/loading.dart';
-import 'my_icon.dart';
+import 'http/repository/home.dart';
+import 'page/tag_detail.dart';
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
@@ -65,8 +65,8 @@ class _HomeState extends State<Home> {
                 titleSpacing: 0,
                 stretch: true,
                 pinned: false,
-                title: Header(),
-                toolbarHeight: 123,
+                title: Header(child: IndexHeader()),
+                toolbarHeight: 100,
               ),
             ];
           },
@@ -86,7 +86,7 @@ class _HomeState extends State<Home> {
                   itemCount: 3,
                   itemBuilder: (context, idx) {
                     if (blockContents == null || blockContents.isEmpty) {
-                      return SizedBox();
+                      return const SizedBox();
                     }
 
                     Map block = blockContents[idx];
@@ -203,107 +203,6 @@ class Section extends StatelessWidget {
   }
 }
 
-class Header extends StatelessWidget {
-  const Header({Key? key}) : super(key: key);
-
-  Future<List<Map<String, String>>> getData() async {
-    try {
-      return await HomeRepository.getTags();
-    } catch (e) {
-      return [];
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.only(
-        top: 20,
-        right: 15,
-        bottom: 15.5,
-        left: 15,
-      ),
-      decoration: const BoxDecoration(
-        color: Color.fromARGB(255, 44, 89, 183),
-      ),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Image.asset(
-                'images/logo@2x.png',
-                width: 180,
-                height: 36,
-              ),
-              Row(
-                children: [
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.pushNamed(context, '/cart');
-                    },
-                    child: const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 10),
-                      child: Icon(
-                        MyIcons.cart,
-                        color: Colors.white,
-                        size: 20,
-                      ),
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () {},
-                    child: const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 10),
-                      child: Icon(
-                        MyIcons.search,
-                        color: Colors.white,
-                        size: 20,
-                      ),
-                    ),
-                  ),
-                ],
-              )
-            ],
-          ),
-          Padding(
-            padding: const EdgeInsets.only(top: 20),
-            child: Container(
-              alignment: Alignment.centerLeft,
-              child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: FutureBuilder<List<Map<String, String>>>(
-                    future: getData(),
-                    initialData: [],
-                    builder: (context, snapshot) {
-                      return Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        // crossAxisAlignment: CrossAxisAlignment.start,
-                        children: snapshot.data!.map((item) {
-                          return Tag(
-                              label: item['name'] ?? '',
-                              onTap: () {
-                                Navigator.pushNamed(
-                                  context,
-                                  '/tag',
-                                  arguments: TagScreenArguments(
-                                    item['id']!,
-                                    item['name']!,
-                                  ),
-                                );
-                              });
-                        }).toList(),
-                      );
-                    },
-                  )),
-            ),
-          )
-        ],
-      ),
-    );
-  }
-}
-
 class Book extends StatelessWidget {
   const Book({
     Key? key,
@@ -384,6 +283,60 @@ class Tag extends StatelessWidget {
             color: Color.fromARGB(137, 255, 255, 255),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class IndexHeader extends StatefulWidget {
+  const IndexHeader({Key? key}) : super(key: key);
+
+  @override
+  State<StatefulWidget> createState() {
+    return _IndexHeaderState();
+  }
+}
+
+class _IndexHeaderState extends State<IndexHeader> {
+  Future<List<Map<String, String>>> getData() async {
+    try {
+      return await HomeRepository.getTags();
+    } catch (e) {
+      return [];
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      padding: const EdgeInsets.symmetric(horizontal: 15),
+      child: FutureBuilder<List<Map<String, String>>>(
+        future: getData(),
+        initialData: [],
+        builder: (context, snapshot) {
+          return Container(
+            height: 35,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              // crossAxisAlignment: CrossAxisAlignment.start,
+              children: snapshot.data!.map((item) {
+                return Tag(
+                    label: item['name'] ?? '',
+                    onTap: () {
+                      Navigator.pushNamed(
+                        context,
+                        '/tag',
+                        arguments: TagScreenArguments(
+                          item['id']!,
+                          item['name']!,
+                        ),
+                      );
+                    });
+              }).toList(),
+            ),
+          );
+        },
       ),
     );
   }

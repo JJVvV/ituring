@@ -18,17 +18,21 @@ class TagDetail extends StatelessWidget {
       backgroundColor: Colors.transparent,
       appBar: AppBar(
         title: Text(args.name),
-        titleTextStyle: TextStyle(
+        titleTextStyle: const TextStyle(
           color: Colors.black,
           fontSize: 16,
         ),
-        iconTheme: IconThemeData(color: Color.fromARGB(255, 107, 109, 122)),
+        iconTheme: const IconThemeData(
+          color: Color.fromARGB(255, 107, 109, 122),
+        ),
         centerTitle: true,
         backgroundColor: Colors.white,
         elevation: 0,
       ),
-      body:
-          Text(args.name + ': ${args.id}', style: TextStyle(color: Colors.red)),
+      body: Text(
+        '${args.name}: ${args.id}',
+        style: const TextStyle(color: Colors.red),
+      ),
     );
   }
 }
