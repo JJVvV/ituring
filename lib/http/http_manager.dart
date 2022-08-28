@@ -39,7 +39,7 @@ class HttpManager {
     _dio.interceptors.add(ErrorInterceptors(_dio));
   }
 
-  Future<Map<String, dynamic>> request(
+  Future request(
     String path, {
     baseUrl,
     targetUrl,

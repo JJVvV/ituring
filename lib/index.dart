@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:ituring/page/books.dart';
 
-import 'home.dart';
 import 'my_icon.dart';
+import 'page/home.dart';
 
 class IndexPage extends StatefulWidget {
   const IndexPage({Key? key}) : super(key: key);
@@ -40,22 +41,24 @@ class _IndexPageState extends State<IndexPage> {
             },
           )),
       body: Container(
-        child: Container(
-          decoration: const BoxDecoration(
-            color: Color.fromARGB(255, 248, 248, 248),
-          ),
-          child: PageView(
-            onPageChanged: (index) {
-              _selectedIndex.value = index;
-            },
-            controller: _pageController,
-            children: const [
-              Home(),
-              Text('asdf page1'),
-              Text('cart'),
-              Text('asdf page3'),
-            ],
-          ),
+        decoration: const BoxDecoration(
+          color: Color.fromARGB(255, 248, 248, 248),
+        ),
+        child: PageView(
+          onPageChanged: (index) {
+            print('onPageChange $index');
+            _selectedIndex.value = index;
+            setState(() {
+              pageIndex = index;
+            });
+          },
+          controller: _pageController,
+          children: const [
+            Home(),
+            Books(),
+            Text('cart'),
+            Text('asdf page3'),
+          ],
         ),
       ),
     );

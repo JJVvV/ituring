@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-import 'component/header.dart';
-import 'component/loading.dart';
-import 'http/repository/home.dart';
-import 'page/tag_detail.dart';
+import '../component/header.dart';
+import '../component/loading.dart';
+import '../http/repository/home.dart';
+import 'tag_detail.dart';
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
@@ -33,22 +33,6 @@ class _HomeState extends State<Home> {
     // getData();
   }
 
-  // List list = [
-  //   {"name": 'Linux1命令行与shell脚本编程大全（第4版）', "author": 'Al Sweigart'},
-  //   {"name": 'Linux2命令行与shell脚本编程大全（第4版）', "author": 'Al Sweigart'},
-  //   {"name": 'Linux3命令行与shell脚本编程大全（第4版）', "author": 'Al Sweigart'},
-  //   {"name": 'Linux4命令行与shell脚本编程大全（第4版）', "author": 'Al Sweigart'},
-  //   {"name": 'Linux5命令行与shell脚本编程大全（第4版）', "author": 'Al Sweigart'},
-  //   {"name": 'Linux6命令行与shell脚本编程大全（第4版）', "author": 'Al Sweigart'},
-  //   {"name": 'Linux命令行与shell脚本编程大全（第4版）', "author": 'Al Sweigart'},
-  //   {"name": 'Linux命令行与shell脚本编程大全（第4版）', "author": 'Al Sweigart'},
-  //   {"name": 'Linux命令行与shell脚本编程大全（第4版）', "author": 'Al Sweigart'},
-  //   {"name": 'Linux命令行与shell脚本编程大全（第4版）', "author": 'Al Sweigart'},
-  //   {"name": 'Linux命令行与shell脚本编程大全（第4版）', "author": 'Al Sweigart'},
-  //   {"name": 'Linux命令行与shell脚本编程大全（第4版）', "author": 'Al Sweigart'},
-  //   {"name": 'Linux命令行与shell脚本编程大全（第4版）', "author": 'Al Sweigart'},
-  // ];
-
   final ScrollController _scrollController = ScrollController();
 
   @override
@@ -77,7 +61,7 @@ class _HomeState extends State<Home> {
                   return const Loading();
                 }
                 if (snapshot.hasError) {
-                  return Text('error');
+                  return const Text('error');
                 }
                 List<dynamic>? blockContents = snapshot.data;
                 return ListView.builder(
@@ -315,8 +299,8 @@ class _IndexHeaderState extends State<IndexHeader> {
         future: getData(),
         initialData: [],
         builder: (context, snapshot) {
-          return Container(
-            height: 35,
+          return SizedBox(
+            height: 40,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.start,
               // crossAxisAlignment: CrossAxisAlignment.start,
