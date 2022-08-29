@@ -83,16 +83,20 @@ class _BooksState extends State<Books> {
       child: Stack(
         children: [
           NestedScrollView(
+            physics: const BouncingScrollPhysics(),
+            controller: _scrollController,
             headerSliverBuilder:
                 (BuildContext context, bool innerBoxIsScrolled) {
               return <Widget>[
-                const SliverAppBar(
+                SliverAppBar(
                   backgroundColor: Color.fromARGB(255, 44, 89, 183),
                   titleSpacing: 0,
                   stretch: false,
                   pinned: false,
                   title: Header(child: IndexHeader()),
                   toolbarHeight: 100,
+                  expandedHeight: 100.0,
+                  forceElevated: innerBoxIsScrolled,
                 ),
               ];
             },
@@ -122,9 +126,9 @@ class _BooksState extends State<Books> {
                 var childAspectRatio = 1 / 2.25;
 
                 return GridView.count(
-                  physics: const BouncingScrollPhysics(),
-                  controller: _scrollController,
-                  primary: false,
+                  // primary: false,
+                  shrinkWrap: true,
+                  physics: const ClampingScrollPhysics(),
                   padding:
                       const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
                   crossAxisSpacing: 20,
