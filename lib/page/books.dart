@@ -3,6 +3,30 @@ import 'package:ituring/http/repository/books.dart';
 
 import '../component/header.dart';
 import '../component/loading.dart';
+import 'book_detail.dart';
+
+class Logger {
+  final String name;
+  bool mute = false;
+
+  // _cache is library-private, thanks to
+  // the _ in front of its name.
+  static final Map<String, Logger> _cache = <String, Logger>{};
+
+  factory Logger(String name) {
+    return _cache.putIfAbsent(name, () => Logger._internal1(name));
+  }
+
+  factory Logger.fromJson(Map<String, Object> json) {
+    return Logger(json['name'].toString());
+  }
+
+  Logger._internal1(this.name);
+
+  void log(String msg) {
+    if (!mute) print(msg);
+  }
+}
 
 class Books extends StatefulWidget {
   const Books({Key? key}) : super(key: key);
@@ -13,7 +37,8 @@ class Books extends StatefulWidget {
   }
 }
 
-class _BooksState extends State<Books> {
+class _BooksState extends State<Books>
+    with AutomaticKeepAliveClientMixin<Books> {
   BooksTag? currentTag;
   List<BooksTag> tags = [];
   int page = 1;
@@ -94,8 +119,7 @@ class _BooksState extends State<Books> {
                   stretch: false,
                   pinned: false,
                   title: Header(child: IndexHeader()),
-                  toolbarHeight: 100,
-                  expandedHeight: 100.0,
+                  toolbarHeight: 110,
                   forceElevated: innerBoxIsScrolled,
                 ),
               ];
@@ -138,7 +162,14 @@ class _BooksState extends State<Books> {
                   children: this.books!.map((item) {
                     return GestureDetector(
                       onTap: () {
-                        print(item);
+                        print('item: $item');
+                        Navigator.pushNamed(
+                          context,
+                          '/book',
+                          arguments: BookScreenArguments(
+                            id: item['id'],
+                          ),
+                        );
                       },
                       child: Book(
                         name: item['name'],
@@ -158,6 +189,9 @@ class _BooksState extends State<Books> {
       ),
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }
 
 class Section extends StatelessWidget {

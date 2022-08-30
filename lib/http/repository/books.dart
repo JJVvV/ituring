@@ -81,6 +81,17 @@ class BooksRepository {
     }
   }
 
+  static Future<Map<String, dynamic>?> getBook(
+      Map<String, dynamic> data) async {
+    try {
+      var result = await httpManager.request('/Book/${data['id']}');
+      return result;
+    } catch (e) {
+      print(e);
+    }
+    return null;
+  }
+
   static Future<List<BooksTag>> getTags() async {
     List<BooksTag> tabs = [
       BooksTag('全部', 'all'),

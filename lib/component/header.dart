@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
 
 import '../my_icon.dart';
+import '../page/index.dart';
 
 class Header extends StatelessWidget {
-  const Header({Key? key, required this.child}) : super(key: key);
+  const Header({
+    Key? key,
+    required this.child,
+  }) : super(key: key);
   final Widget child;
+
+  // final Function() onTapCart;
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +37,8 @@ class Header extends StatelessWidget {
                   children: [
                     GestureDetector(
                       onTap: () {
-                        Navigator.pushNamed(context, '/cart');
+                        var state = IndexPageViewState.of(context);
+                        state.setCurrentPage(3);
                       },
                       child: const Padding(
                         padding: EdgeInsets.symmetric(horizontal: 10),

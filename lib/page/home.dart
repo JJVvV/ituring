@@ -14,7 +14,7 @@ class Home extends StatefulWidget {
   }
 }
 
-class _HomeState extends State<Home> {
+class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin<Home> {
   Future<List<dynamic>> getData() async {
     try {
       var response = await HomeRepository.getHome();
@@ -49,8 +49,10 @@ class _HomeState extends State<Home> {
                 titleSpacing: 0,
                 stretch: true,
                 pinned: false,
-                title: Header(child: IndexHeader()),
-                toolbarHeight: 100,
+                title: Header(
+                  child: IndexHeader(),
+                ),
+                toolbarHeight: 110,
               ),
             ];
           },
@@ -119,6 +121,9 @@ class _HomeState extends State<Home> {
       ],
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }
 
 class Section extends StatelessWidget {

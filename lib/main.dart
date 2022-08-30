@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:ituring/index.dart';
+import 'package:ituring/page/book_detail.dart';
+import 'package:ituring/page/index.dart';
 import 'package:ituring/page/tag_detail.dart';
 import 'package:ituring/theme/app_theme.dart';
 
@@ -46,9 +47,9 @@ class MyApp extends StatelessWidget {
       ),
       routes: {
         '/': (context) => initialFunction(),
-        '/book': (context) => Text('book page'),
+        '/book': (context) => const BookDetail(),
         '/tag': (context) => TagDetail(),
-        '/cart': (context) => Cart(),
+        '/cart': (context) => const Cart(),
       },
     );
   }
