@@ -16,13 +16,23 @@ class BookDetailWidget extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
           BookHeaderWidget(data: data),
-          Container(
-            color: const Color.fromARGB(255, 248, 248, 248),
-            height: 10,
-          ),
+          const BackgroundLine(),
           BookPriceWidget(),
+          const BackgroundLine(),
         ],
       ),
+    );
+  }
+}
+
+class BackgroundLine extends StatelessWidget {
+  const BackgroundLine({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: const Color.fromARGB(255, 248, 248, 248),
+      height: 10,
     );
   }
 }
@@ -42,7 +52,65 @@ class BookHeaderWidget extends StatefulWidget {
 class BookPriceWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return SizedBox();
+    return Container(
+      color: const Color.fromARGB(255, 255, 255, 255),
+      padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            children: const [
+              Padding(
+                padding: EdgeInsets.only(right: 10),
+                child: Text(
+                  '电子书',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Color.fromARGB(255, 36, 39, 58),
+                  ),
+                ),
+              ),
+              BookFormat('epub'),
+              BookFormat('mobi'),
+              BookFormat('pdf'),
+            ],
+          ),
+          Text('33.9 元'),
+        ],
+      ),
+    );
+  }
+}
+
+class BookFormat extends StatelessWidget {
+  const BookFormat(
+    this.label, {
+    Key? key,
+    this.onTap,
+  }) : super(key: key);
+
+  final String label;
+  final Function? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        if (onTap != null) onTap!();
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+        color: const Color.fromARGB(255, 238, 172, 87),
+        margin: const EdgeInsets.only(right: 5),
+        child: Text(
+          label,
+          style: const TextStyle(
+            color: Color.fromARGB(255, 255, 255, 255),
+            fontSize: 12,
+          ),
+        ),
+      ),
+    );
   }
 }
 
