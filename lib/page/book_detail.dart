@@ -69,12 +69,16 @@ class _BookDetailState extends State<BookDetail> {
                     stretch: false,
                     pinned: true,
                     // collapsedHeight: 30,
-                    title: Text(book?.name ?? ''),
+                    title: Text(
+                      book?.name ?? '',
+                      style: TextStyle(color: Colors.black),
+                    ),
                     toolbarHeight: 50,
                     // expandedHeight: 20,
                     forceElevated: innerBoxIsScrolled,
                     iconTheme: const IconThemeData(
-                        color: Color.fromARGB(255, 107, 109, 122)),
+                      color: Color.fromARGB(255, 107, 109, 122),
+                    ),
                   ),
                 ];
               },
@@ -90,11 +94,13 @@ class _BookDetailState extends State<BookDetail> {
                   }
 
                   book = BookDetailDataEntity.fromJson(snapshot.data);
-                  print('book: $book');
                   if (book == null) {
                     return SizedBox();
                   }
-                  return BookDetailWidget(data: book!);
+                  return BookDetailWidget(
+                    data: book!,
+                    scrollController: _scrollController,
+                  );
                 },
               ),
             )

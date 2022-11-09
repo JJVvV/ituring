@@ -1,24 +1,79 @@
 import 'package:flutter/material.dart';
 import 'package:ituring/http/repository/book_detail_data_entity.dart';
 
-class BookDetailWidget extends StatelessWidget {
+class BookDetailWidget extends StatefulWidget {
   final BookDetailDataEntity data;
+  const BookDetailWidget(
+      {Key? key, required this.data, required this.scrollController})
+      : super(key: key);
 
-  const BookDetailWidget({
-    Key? key,
-    required this.data,
-  }) : super(key: key);
+  final ScrollController scrollController;
+
+  @override
+  State<StatefulWidget> createState() {
+    return _BookDetailState();
+  }
+}
+
+class _BookDetailState extends State<BookDetailWidget>
+    with TickerProviderStateMixin {
+  List tabs = ["介绍", "相关内容", "随书下载"];
+  late TabController _tabController;
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: tabs.length, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Colors.white,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
+    final screenHeight = MediaQuery.of(context).size.height;
+    return NestedScrollView(
+      physics: const BouncingScrollPhysics(),
+      controller: widget.scrollController,
+      headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
+        return <Widget>[];
+      },
+      body: ListView(
         children: [
-          BookHeaderWidget(data: data),
+          BookHeaderWidget(data: widget.data),
           const BackgroundLine(),
           BookPriceWidget(),
           const BackgroundLine(),
+          TabBar(
+            controller: _tabController,
+            tabs: tabs
+                .map(
+                  (e) => Tab(
+                    child: Text(
+                      e,
+                      style: const TextStyle(
+                        color: Color.fromARGB(255, 36, 39, 51),
+                      ),
+                    ),
+                  ),
+                )
+                .toList(),
+          ),
+          Container(
+            height: 2000,
+            child: TabBarView(
+              controller: _tabController,
+              //构建
+              children: tabs.map((e) {
+                return Container(
+                  alignment: Alignment.center,
+                  child: Text(e, textScaleFactor: 5),
+                );
+              }).toList(),
+            ),
+          ),
         ],
       ),
     );
