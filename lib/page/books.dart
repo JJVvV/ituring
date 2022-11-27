@@ -24,7 +24,7 @@ class Logger {
   Logger._internal1(this.name);
 
   void log(String msg) {
-    if (!mute) print(msg);
+    // if (!mute) print(msg);
   }
 }
 
@@ -162,7 +162,6 @@ class _BooksState extends State<Books>
                   children: this.books!.map((item) {
                     return GestureDetector(
                       onTap: () {
-                        print('item: $item');
                         Navigator.pushNamed(
                           context,
                           '/book',
@@ -387,7 +386,6 @@ class _IndexHeaderState extends State<IndexHeader> {
                   label: item.label,
                   isSelected: item.value == tagState.currentTag!.value,
                   onTap: () {
-                    print(item);
                     tagState.setCurrent(item);
                     // Navigator.pushNamed(
                     //   context,

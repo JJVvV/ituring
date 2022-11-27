@@ -79,9 +79,7 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin<Home> {
                     List books = block['tag']['bookItems'];
                     return Section(
                       title: block['name'],
-                      onMore: () {
-                        print('onmore');
-                      },
+                      onMore: () {},
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -97,7 +95,7 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin<Home> {
                                 Map item = books[index];
                                 return GestureDetector(
                                   onTap: () {
-                                    print(item);
+                                    // print(item);
                                   },
                                   child: Book(
                                     name: item['name'],

@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:ituring/http/repository/book_detail_data_entity.dart';
+import 'package:flutter_html/flutter_html.dart';
+import 'package:ituring/page/book_detail.dart';
+
+import '../http/repository/book_detail_data_entity.dart';
 
 class BookDetailWidget extends StatefulWidget {
-  final BookDetailDataEntity data;
-  const BookDetailWidget(
-      {Key? key, required this.data, required this.scrollController})
+  BookDetailWidget({Key? key, required this.scrollController})
       : super(key: key);
 
   final ScrollController scrollController;
@@ -15,14 +16,150 @@ class BookDetailWidget extends StatefulWidget {
   }
 }
 
+class TabConfig {
+  final String label;
+  final Widget child;
+  TabConfig(this.label, this.child);
+}
+
+class Intro extends StatefulWidget {
+  const Intro({Key? key}) : super(key: key);
+
+  @override
+  State<StatefulWidget> createState() {
+    return _IntroState();
+  }
+}
+
+class IntroSection extends StatelessWidget {
+  final String label;
+  final Widget child;
+
+  const IntroSection({Key? key, required this.label, required this.child})
+      : super(key: key);
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(top: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Container(
+                width: 4,
+                height: 16,
+                color: Color.fromARGB(255, 44, 89, 183),
+                margin: EdgeInsets.only(right: 10),
+              ),
+              Text(
+                label,
+                style: TextStyle(fontSize: 16),
+              )
+            ],
+          ),
+          child
+        ],
+      ),
+    );
+  }
+}
+
+class _IntroState extends State<Intro> {
+  Widget renderContentTable(List<BookDetailDataEbookChapters> data) {
+    return Column(
+      children: data.map((item) {
+        return Container(
+          padding: const EdgeInsets.symmetric(vertical: 15),
+          child: Text(item.subject ?? ''),
+        );
+      }).toList(),
+      crossAxisAlignment: CrossAxisAlignment.start,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final data = InheritedBookDetailProvider.of(context).data;
+    if (data == null) {
+      return SizedBox();
+    }
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 15),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          IntroSection(
+            label: '特别说明',
+            child: Html(
+              data: data.briefIntro?.specialNotes ?? '',
+            ),
+          ),
+          IntroSection(
+            label: '本书特色',
+            child: Html(
+              data: data.briefIntro?.highlight
+                      ?.replaceAll(RegExp(r'\r\n'), '<div></div>') ??
+                  '',
+            ),
+          ),
+          IntroSection(
+            label: '目录',
+            child: data.contentTable != null
+                ? Html(data: data.contentTable)
+                : renderContentTable(data.ebook?.chapters ?? []),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class Content extends StatefulWidget {
+  const Content({Key? key}) : super(key: key);
+
+  @override
+  State<StatefulWidget> createState() {
+    return _ContentState();
+  }
+}
+
+class _ContentState extends State<Content> {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: Text('内容'),
+    );
+  }
+}
+
+class Download extends StatefulWidget {
+  const Download({Key? key}) : super(key: key);
+
+  @override
+  State<StatefulWidget> createState() {
+    return _DownloadState();
+  }
+}
+
+class _DownloadState extends State<Download> {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: Text('下载'),
+    );
+  }
+}
+
 class _BookDetailState extends State<BookDetailWidget>
     with TickerProviderStateMixin {
-  List tabs = ["介绍", "相关内容", "随书下载"];
+  late List<TabConfig> tabs;
   late TabController _tabController;
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: tabs.length, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
   }
 
   @override
@@ -31,51 +168,55 @@ class _BookDetailState extends State<BookDetailWidget>
     super.dispose();
   }
 
+  int tabIndex = 0;
+
+  Widget renderTabView() {
+    return tabs[tabIndex].child;
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
-    return NestedScrollView(
-      physics: const BouncingScrollPhysics(),
-      controller: widget.scrollController,
-      headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
-        return <Widget>[];
-      },
-      body: ListView(
-        children: [
-          BookHeaderWidget(data: widget.data),
-          const BackgroundLine(),
-          BookPriceWidget(),
-          const BackgroundLine(),
-          TabBar(
-            controller: _tabController,
-            tabs: tabs
-                .map(
-                  (e) => Tab(
-                    child: Text(
-                      e,
-                      style: const TextStyle(
-                        color: Color.fromARGB(255, 36, 39, 51),
-                      ),
+    final data = InheritedBookDetailProvider.of(context).data;
+    tabs = [
+      TabConfig('介绍', Intro()),
+      TabConfig("相关内容", Content()),
+      TabConfig("随书下载", Download())
+    ];
+    if (data == null) {
+      return SizedBox();
+    }
+    return ListView(
+      children: [
+        BookHeaderWidget(),
+        const BackgroundLine(),
+        BookPriceWidget(),
+        const BackgroundLine(),
+        TabBar(
+          onTap: (index) {
+            setState(() {
+              tabIndex = index;
+            });
+          },
+          controller: _tabController,
+          tabs: tabs
+              .map(
+                (e) => Tab(
+                  child: Text(
+                    e.label,
+                    style: const TextStyle(
+                      color: Color.fromARGB(255, 36, 39, 51),
                     ),
                   ),
-                )
-                .toList(),
-          ),
-          Container(
-            height: 2000,
-            child: TabBarView(
-              controller: _tabController,
-              //构建
-              children: tabs.map((e) {
-                return Container(
-                  alignment: Alignment.center,
-                  child: Text(e, textScaleFactor: 5),
-                );
-              }).toList(),
-            ),
-          ),
-        ],
-      ),
+                ),
+              )
+              .toList(),
+        ),
+        Container(
+          // height: 4800,
+          child: renderTabView(),
+        ),
+      ],
     );
   }
 }
@@ -95,9 +236,7 @@ class BackgroundLine extends StatelessWidget {
 class BookHeaderWidget extends StatefulWidget {
   const BookHeaderWidget({
     Key? key,
-    required this.data,
   }) : super(key: key);
-  final BookDetailDataEntity data;
   @override
   State<StatefulWidget> createState() {
     return _BookHeaderState();
@@ -105,6 +244,7 @@ class BookHeaderWidget extends StatefulWidget {
 }
 
 class BookPriceWidget extends StatelessWidget {
+  const BookPriceWidget({Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -174,7 +314,10 @@ class _BookHeaderState extends State<BookHeaderWidget> {
 
   @override
   Widget build(BuildContext context) {
-    var data = widget.data;
+    var data = InheritedBookDetailProvider.of(context).data;
+    if (data == null) {
+      return const SizedBox();
+    }
     var tags = (data.tags ?? []).map((item) {
       return Container(
         padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 10),

@@ -4,6 +4,7 @@ import 'package:ituring/http/repository/book_detail_data_entity.dart';
 import 'package:ituring/http/repository/books.dart';
 
 import '../component/loading.dart';
+import '../mixin/post_frame_mixin.dart';
 
 class BookDetail extends StatefulWidget {
   const BookDetail({Key? key}) : super(key: key);
@@ -22,37 +23,55 @@ class BookScreenArguments {
   });
 }
 
-class _BookDetailState extends State<BookDetail> {
-  BookDetailDataEntity? book;
-  bool isLoading = true;
-  Future<Map<String, dynamic>?> getData() async {
+class _BookDetailState extends State<BookDetail>
+    with PostFrameMixin, TickerProviderStateMixin {
+  bool isLoading = false;
+  BookDetailDataEntity? data;
+  void getData() async {
     final args =
         ModalRoute.of(context)!.settings.arguments as BookScreenArguments;
     try {
-      var value = await BooksRepository.getBook({"id": args.id});
-      isLoading = false;
-      return value;
+      var res = await BooksRepository.getBook({"id": args.id});
+      var book = BookDetailDataEntity.fromJson(res as dynamic);
+      setState(() {
+        data = book;
+        isLoading = false;
+      });
     } catch (e) {
-      print('获取失败');
-      print(e);
-      isLoading = false;
-      return null;
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 
   final ScrollController _scrollController = ScrollController();
-
   @override
   initState() {
     super.initState();
+    postFrame(getData);
   }
 
   Widget renderBottomBar() {
     return Text('bottom bar');
   }
 
+  Widget renderBody() {
+    if (isLoading || data == null) {
+      return const Loading();
+    }
+    return InheritedBookDetailProvider(
+      data: data!,
+      child: BookDetailWidget(
+        scrollController: _scrollController,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    print('book?.name');
+    print(data?.name);
+
     return Scaffold(
         bottomNavigationBar: renderBottomBar(),
         body: Stack(
@@ -70,7 +89,7 @@ class _BookDetailState extends State<BookDetail> {
                     pinned: true,
                     // collapsedHeight: 30,
                     title: Text(
-                      book?.name ?? '',
+                      data?.name ?? '',
                       style: TextStyle(color: Colors.black),
                     ),
                     toolbarHeight: 50,
@@ -82,27 +101,7 @@ class _BookDetailState extends State<BookDetail> {
                   ),
                 ];
               },
-              body: FutureBuilder(
-                future: getData(),
-                builder: (BuildContext context, AsyncSnapshot snapshot) {
-                  if (snapshot.connectionState != ConnectionState.done) {
-                    return const Loading();
-                  }
-
-                  if (snapshot.hasError) {
-                    return const Text('error');
-                  }
-
-                  book = BookDetailDataEntity.fromJson(snapshot.data);
-                  if (book == null) {
-                    return SizedBox();
-                  }
-                  return BookDetailWidget(
-                    data: book!,
-                    scrollController: _scrollController,
-                  );
-                },
-              ),
+              body: renderBody(),
             )
           ],
         ));
@@ -110,6 +109,22 @@ class _BookDetailState extends State<BookDetail> {
 
   @override
   bool get wantKeepAlive => true;
+}
+
+class InheritedBookDetailProvider extends InheritedWidget {
+  final BookDetailDataEntity? data;
+  const InheritedBookDetailProvider(
+      {super.key, required this.data, required super.child});
+
+  @override
+  bool updateShouldNotify(covariant InheritedBookDetailProvider oldWidget) {
+    return oldWidget.data != data;
+  }
+
+  static InheritedBookDetailProvider of(BuildContext context) {
+    return context
+        .dependOnInheritedWidgetOfExactType<InheritedBookDetailProvider>()!;
+  }
 }
 
 class Section extends StatelessWidget {
@@ -277,26 +292,3 @@ class LinkTag extends StatelessWidget {
     );
   }
 }
-
-// class TagState extends InheritedWidget {
-//   const TagState(
-//       {Key? key,
-//       required super.child,
-//       required this.currentTag,
-//       required this.tags,
-//       required this.setCurrent})
-//       : super(key: key);
-//   final BookTag? currentTag;
-//   final List<BookTag> tags;
-//   final Function(BookTag item) setCurrent;
-//
-//   @override
-//   bool updateShouldNotify(TagState oldWidget) {
-//     return oldWidget.currentTag == null ||
-//         oldWidget.currentTag!.value != currentTag!.value;
-//   }
-//
-//   static TagState of(BuildContext context) {
-//     return context.dependOnInheritedWidgetOfExactType<TagState>()!;
-//   }
-// }
