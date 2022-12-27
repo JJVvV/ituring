@@ -5,8 +5,18 @@ class Loading extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: Text('loading'),
+    return Container(
+      color: Colors.white,
+      child: const Center(
+        child: Text(
+          'loading',
+          style: TextStyle(
+            color: Colors.black,
+            fontSize: 12,
+            decoration: TextDecoration.none,
+          ),
+        ),
+      ),
     );
   }
 }

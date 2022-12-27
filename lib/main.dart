@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:ituring/component/auth.dart';
+import 'package:ituring/component/login_provider.dart';
 import 'package:ituring/page/book_detail.dart';
 import 'package:ituring/page/index.dart';
+import 'package:ituring/page/login.dart';
 import 'package:ituring/page/tag_detail.dart';
 import 'package:ituring/theme/app_theme.dart';
 
@@ -31,13 +34,26 @@ void main() {
     DeviceOrientation.landscapeLeft,
     DeviceOrientation.landscapeRight,
   ]);
-  runApp(const MyApp());
+  runApp(
+    AuthState(
+      child: App(),
+    ),
+  );
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+class App extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() {
+    return _AppState();
+  }
+}
 
-  // This widget is the root of your application.
+class _AppState extends State<App> {
+  @override
+  void initState() {
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -46,15 +62,12 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       routes: {
-        '/': (context) => initialFunction(),
-        '/book': (context) => const BookDetail(),
-        '/tag': (context) => TagDetail(),
-        '/cart': (context) => const Cart(),
+        '/': (context) => LoginProvider(child: const IndexPage()),
+        '/book': (context) => LoginProvider(child: const BookDetail()),
+        '/tag': (context) => LoginProvider(child: TagDetail()),
+        '/cart': (context) => LoginProvider(child: const Cart()),
+        '/login': (context) => const Login(),
       },
     );
-  }
-
-  Widget initialFunction() {
-    return const IndexPage();
   }
 }

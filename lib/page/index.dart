@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:ituring/page/books.dart';
+import 'package:ituring/page/home.dart';
+import 'package:ituring/page/my.dart';
+import 'package:ituring/widgets/custom_physysics.dart';
 
 import '../my_icon.dart';
-import 'home.dart';
 
 class IndexPage extends StatefulWidget {
   const IndexPage({Key? key}) : super(key: key);
@@ -22,9 +24,6 @@ class _IndexPageState extends State<IndexPage> {
   int pageIndex = 0;
 
   Widget renderBottomBar() {
-    if (pageIndex >= 2) {
-      return SizedBox();
-    }
     return Container(
       height: 50,
       decoration: const BoxDecoration(
@@ -72,12 +71,13 @@ class _IndexPageState extends State<IndexPage> {
                 pageIndex = index;
               });
             },
+            physics: const CustomPhysics(),
             controller: _pageController,
             children: const [
               Home(),
               Books(),
-              Text('cart'),
-              Text('asdf page3'),
+              Text('购物车'),
+              My(),
             ],
           ),
         ),
@@ -87,10 +87,8 @@ class _IndexPageState extends State<IndexPage> {
 
   void _onItemTapped(int index) {
     // _selectedIndex.value = index;
-    _pageController.animateToPage(
+    _pageController.jumpToPage(
       index,
-      duration: Duration(milliseconds: 300),
-      curve: Curves.ease,
     );
     setState(() {
       pageIndex = index;
