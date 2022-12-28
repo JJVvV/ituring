@@ -36,19 +36,19 @@ void main() {
   ]);
   runApp(
     AuthState(
-      child: App(),
+      child: MyApp(),
     ),
   );
 }
 
-class App extends StatefulWidget {
+class MyApp extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
     return _AppState();
   }
 }
 
-class _AppState extends State<App> {
+class _AppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();

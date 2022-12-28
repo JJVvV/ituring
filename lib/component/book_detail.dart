@@ -1,11 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
-import 'package:ituring/page/book_detail.dart';
 
 import '../http/repository/book_detail_data_entity.dart';
 
+class InheritedBookDetailProvider extends InheritedWidget {
+  final BookDetailDataEntity? data;
+  const InheritedBookDetailProvider(
+      {super.key, required this.data, required super.child});
+
+  @override
+  bool updateShouldNotify(covariant InheritedBookDetailProvider oldWidget) {
+    return oldWidget.data != data;
+  }
+
+  static InheritedBookDetailProvider of(BuildContext context) {
+    return context
+        .dependOnInheritedWidgetOfExactType<InheritedBookDetailProvider>()!;
+  }
+}
+
 class BookDetailWidget extends StatefulWidget {
-  BookDetailWidget({Key? key, required this.scrollController})
+  const BookDetailWidget({Key? key, required this.scrollController})
       : super(key: key);
 
   final ScrollController scrollController;
@@ -40,7 +55,7 @@ class IntroSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(top: 20),
+      padding: const EdgeInsets.only(top: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -176,47 +191,50 @@ class _BookDetailState extends State<BookDetailWidget>
 
   @override
   Widget build(BuildContext context) {
-    final screenHeight = MediaQuery.of(context).size.height;
     final data = InheritedBookDetailProvider.of(context).data;
     tabs = [
-      TabConfig('介绍', Intro()),
-      TabConfig("相关内容", Content()),
-      TabConfig("随书下载", Download())
+      TabConfig('介绍', const Intro()),
+      TabConfig("相关内容", const Content()),
+      TabConfig("随书下载", const Download())
     ];
     if (data == null) {
-      return SizedBox();
+      return const SizedBox();
     }
-    return ListView(
-      children: [
-        BookHeaderWidget(),
-        const BackgroundLine(),
-        BookPriceWidget(),
-        const BackgroundLine(),
-        TabBar(
-          onTap: (index) {
-            setState(() {
-              tabIndex = index;
-            });
-          },
-          controller: _tabController,
-          tabs: tabs
-              .map(
-                (e) => Tab(
-                  child: Text(
-                    e.label,
-                    style: const TextStyle(
-                      color: Color.fromARGB(255, 36, 39, 51),
+    return MediaQuery.removePadding(
+      context: context,
+      removeTop: true,
+      child: ListView(
+        children: [
+          const BookHeaderWidget(),
+          const BackgroundLine(),
+          const BookPriceWidget(),
+          const BackgroundLine(),
+          TabBar(
+            onTap: (index) {
+              setState(() {
+                tabIndex = index;
+              });
+            },
+            controller: _tabController,
+            tabs: tabs
+                .map(
+                  (e) => Tab(
+                    child: Text(
+                      e.label,
+                      style: const TextStyle(
+                        color: Color.fromARGB(255, 36, 39, 51),
+                      ),
                     ),
                   ),
-                ),
-              )
-              .toList(),
-        ),
-        Container(
-          // height: 4800,
-          child: renderTabView(),
-        ),
-      ],
+                )
+                .toList(),
+          ),
+          Container(
+            // height: 4800,
+            child: renderTabView(),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -244,9 +262,21 @@ class BookHeaderWidget extends StatefulWidget {
 }
 
 class BookPriceWidget extends StatelessWidget {
+  BookDetailDataBookEditionPrices? getEbookPrice(BookDetailDataEntity data) {
+    var ebookPrice = (data.bookEditionPrices ?? [])!.where((price) {
+      return price.key == 'Ebook';
+    }).toList();
+    return ebookPrice.isNotEmpty ? ebookPrice[0] : null;
+  }
+
   const BookPriceWidget({Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
+    var data = InheritedBookDetailProvider.of(context).data!;
+    var ebookPrice = getEbookPrice(data);
+    if (ebookPrice == null) {
+      return const SizedBox();
+    }
     return Container(
       color: const Color.fromARGB(255, 255, 255, 255),
       padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
@@ -254,8 +284,8 @@ class BookPriceWidget extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Row(
-            children: const [
-              Padding(
+            children: [
+              const Padding(
                 padding: EdgeInsets.only(right: 10),
                 child: Text(
                   '电子书',
@@ -265,12 +295,12 @@ class BookPriceWidget extends StatelessWidget {
                   ),
                 ),
               ),
-              BookFormat('epub'),
-              BookFormat('mobi'),
-              BookFormat('pdf'),
+              if (data!.supportEpub ?? false) const BookFormat('epub'),
+              if (data!.supportMobi ?? false) const BookFormat('mobi'),
+              if (data!.supportPdf ?? false) const BookFormat('pdf'),
             ],
           ),
-          Text('33.9 元'),
+          Text('${ebookPrice.name} 元'),
         ],
       ),
     );

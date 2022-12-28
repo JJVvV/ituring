@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:ituring/component/book_detail.dart';
 import 'package:ituring/http/repository/book_detail_data_entity.dart';
 import 'package:ituring/http/repository/books.dart';
+import 'package:ituring/my_icon.dart';
 
+import '../component/book.dart';
 import '../component/loading.dart';
 import '../mixin/post_frame_mixin.dart';
 
@@ -13,14 +15,6 @@ class BookDetail extends StatefulWidget {
   State<StatefulWidget> createState() {
     return _BookDetailState();
   }
-}
-
-class BookScreenArguments {
-  final int id;
-
-  BookScreenArguments({
-    required this.id,
-  });
 }
 
 class _BookDetailState extends State<BookDetail>
@@ -52,7 +46,141 @@ class _BookDetailState extends State<BookDetail>
   }
 
   Widget renderBottomBar() {
-    return Text('bottom bar');
+    return Container(
+      decoration: const BoxDecoration(
+        border: Border(
+          top: BorderSide(
+            color: Color.fromARGB(255, 227, 229, 232),
+          ),
+        ),
+      ),
+      height: 51,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          InkWell(
+            onTap: () {},
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: const [
+                  Icon(
+                    MyIcons.recommend,
+                    color: Color.fromARGB(255, 107, 109, 122),
+                    size: 16,
+                  ),
+                  Text(
+                    '推荐',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Color.fromARGB(255, 107, 109, 122),
+                    ),
+                  )
+                ],
+              ),
+            ),
+          ),
+          InkWell(
+            onTap: () {},
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: const [
+                  Icon(
+                    MyIcons.collect,
+                    color: Color.fromARGB(255, 107, 109, 122),
+                    size: 16,
+                  ),
+                  Text(
+                    '收藏',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Color.fromARGB(255, 107, 109, 122),
+                    ),
+                  )
+                ],
+              ),
+            ),
+          ),
+          InkWell(
+            onTap: () {},
+            child: Container(
+              color: Color.fromARGB(255, 44, 89, 183),
+              height: 50,
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  RichText(
+                    text: TextSpan(children: [
+                      const WidgetSpan(
+                        child: Text(
+                          '购书袋',
+                          style: TextStyle(
+                            height: 1,
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      WidgetSpan(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 2, horizontal: 8),
+                          margin: EdgeInsets.only(left: 5),
+                          decoration: const BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.all(Radius.circular(99)),
+                          ),
+                          child: const Text(
+                            '3',
+                            style: TextStyle(
+                              height: 1,
+                              color: Color.fromARGB(255, 44, 89, 183),
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ]),
+                  )
+                ],
+              ),
+            ),
+          ),
+          Expanded(
+            child: InkWell(
+              onTap: () {
+                print('购买');
+              },
+              child: Container(
+                color: Color.fromARGB(255, 238, 172, 87),
+                height: 50,
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: const [
+                    Text(
+                      '购买',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    )
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget renderBody() {
@@ -111,22 +239,6 @@ class _BookDetailState extends State<BookDetail>
   bool get wantKeepAlive => true;
 }
 
-class InheritedBookDetailProvider extends InheritedWidget {
-  final BookDetailDataEntity? data;
-  const InheritedBookDetailProvider(
-      {super.key, required this.data, required super.child});
-
-  @override
-  bool updateShouldNotify(covariant InheritedBookDetailProvider oldWidget) {
-    return oldWidget.data != data;
-  }
-
-  static InheritedBookDetailProvider of(BuildContext context) {
-    return context
-        .dependOnInheritedWidgetOfExactType<InheritedBookDetailProvider>()!;
-  }
-}
-
 class Section extends StatelessWidget {
   const Section({
     Key? key,
@@ -170,7 +282,7 @@ class Section extends StatelessWidget {
                     borderRadius: BorderRadius.all(Radius.circular(50)),
                     color: Color.fromARGB(255, 248, 248, 248),
                   ),
-                  child: GestureDetector(
+                  child: InkWell(
                     onTap: () {
                       onMore();
                     },
@@ -193,69 +305,6 @@ class Section extends StatelessWidget {
   }
 }
 
-class Book extends StatelessWidget {
-  const Book({
-    Key? key,
-    required this.name,
-    required this.cover,
-    this.author = '',
-  }) : super(key: key);
-  final String name;
-  final String cover;
-  final String author;
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      // width: 90,
-      child: Column(
-        children: [
-          Container(
-            margin: const EdgeInsets.only(bottom: 10, top: 20),
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: Padding(
-                padding: const EdgeInsets.only(right: 15),
-                child: Image.network(cover),
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 5),
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                name,
-                maxLines: 2,
-                softWrap: true,
-                textAlign: TextAlign.start,
-                style: const TextStyle(
-                  color: Color.fromARGB(255, 36, 39, 51),
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ),
-          if (author.isNotEmpty)
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                author,
-                softWrap: false,
-                textAlign: TextAlign.start,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  color: Color.fromARGB(255, 107, 109, 122),
-                  fontSize: 14,
-                ),
-              ),
-            )
-        ],
-      ),
-    );
-  }
-}
-
 class LinkTag extends StatelessWidget {
   const LinkTag({
     Key? key,
@@ -268,7 +317,7 @@ class LinkTag extends StatelessWidget {
   final bool isSelected;
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return InkWell(
       onTap: () {
         onTap();
       },

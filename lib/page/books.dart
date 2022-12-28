@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:ituring/http/repository/books.dart';
+import 'package:ituring/http/repository/books_data_entity.dart';
 
+import '../component/book.dart';
 import '../component/header.dart';
 import '../component/loading.dart';
-import 'book_detail.dart';
 
 class Logger {
   final String name;
@@ -43,10 +44,10 @@ class _BooksState extends State<Books>
   List<BooksTag> tags = [];
   int page = 1;
   String sort = 'new';
-  Future<Map<String, dynamic>?>? future;
-  List<dynamic>? books;
+  Future<BooksDataEntity?>? future;
+  List<BooksDataBookItems>? books;
 
-  Future<Map<String, dynamic>?> getData() async {
+  Future<BooksDataEntity?> getData() async {
     if (currentTag == null || tags.isEmpty) {
       tags = await BooksRepository.getTags();
       currentTag = tags[0];
@@ -58,7 +59,7 @@ class _BooksState extends State<Books>
         page: page,
         tab: currentTag!.value,
       ).toMap());
-      hasMore = value['pagination']['hasNextPage'];
+      hasMore = value?.pagination?.hasNextPage ?? false;
       isLoading = false;
       return value;
     } catch (e) {
@@ -126,7 +127,8 @@ class _BooksState extends State<Books>
             },
             body: FutureBuilder(
               future: future,
-              builder: (BuildContext context, AsyncSnapshot snapshot) {
+              builder: (BuildContext context,
+                  AsyncSnapshot<BooksDataEntity?> snapshot) {
                 if (snapshot.connectionState != ConnectionState.done &&
                     this.books == null) {
                   return const Loading();
@@ -136,14 +138,14 @@ class _BooksState extends State<Books>
                   return const Text('error');
                 }
 
-                List<dynamic>? books = snapshot.data["bookItems"];
+                var books = snapshot.data?.bookItems ?? [];
                 if (this.books == null) {
                   this.books = [];
                 }
-                books?.forEach((item) {
+                for (var item in books) {
                   this.books!.add(item);
-                });
-                if (books == null || books.isEmpty) {
+                }
+                if (books.isEmpty) {
                   return const SizedBox();
                 }
 
@@ -160,24 +162,13 @@ class _BooksState extends State<Books>
                   crossAxisCount: 3,
                   childAspectRatio: childAspectRatio,
                   children: this.books!.map((item) {
-                    return GestureDetector(
-                      onTap: () {
-                        Navigator.pushNamed(
-                          context,
-                          '/book',
-                          arguments: BookScreenArguments(
-                            id: item['id'],
-                          ),
-                        );
-                      },
-                      child: Book(
-                        name: item['name'],
-                        cover:
-                            "https://file.ituring.com.cn/SmallCover/${item['coverKey']}",
-                        author: item['authors'].isEmpty
-                            ? ''
-                            : item['authors'][0]['name'],
-                      ),
+                    return BookItem(
+                      name: item.name!,
+                      coverKey: item.coverKey!,
+                      id: item.id!,
+                      author: item.authors!.isEmpty
+                          ? ''
+                          : item.authors?[0]['name'] ?? '',
                     );
                   }).toList(),
                 );
@@ -253,69 +244,6 @@ class Section extends StatelessWidget {
             ),
           ),
           if (child != null) child!
-        ],
-      ),
-    );
-  }
-}
-
-class Book extends StatelessWidget {
-  const Book({
-    Key? key,
-    required this.name,
-    required this.cover,
-    this.author = '',
-  }) : super(key: key);
-  final String name;
-  final String cover;
-  final String author;
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      // width: 90,
-      child: Column(
-        children: [
-          Container(
-            margin: const EdgeInsets.only(bottom: 10, top: 20),
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: Padding(
-                padding: const EdgeInsets.only(right: 15),
-                child: Image.network(cover),
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 5),
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                name,
-                maxLines: 2,
-                softWrap: true,
-                textAlign: TextAlign.start,
-                style: const TextStyle(
-                  color: Color.fromARGB(255, 36, 39, 51),
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ),
-          if (author.isNotEmpty)
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                author,
-                softWrap: false,
-                textAlign: TextAlign.start,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  color: Color.fromARGB(255, 107, 109, 122),
-                  fontSize: 14,
-                ),
-              ),
-            )
         ],
       ),
     );

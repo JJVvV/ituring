@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:ituring/generated/json/book_home_data_entity.g.dart';
 
+import '../component/book.dart';
 import '../component/header.dart';
 import '../component/loading.dart';
 import '../http/repository/home.dart';
@@ -65,7 +67,7 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin<Home> {
                 if (snapshot.hasError) {
                   return const Text('error');
                 }
-                List<dynamic>? blockContents = snapshot.data;
+                var blockContents = snapshot.data;
                 return ListView.builder(
                   shrinkWrap: true,
                   padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
@@ -75,10 +77,11 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin<Home> {
                       return const SizedBox();
                     }
 
-                    Map block = blockContents[idx];
-                    List books = block['tag']['bookItems'];
+                    var blockJson = blockContents[idx];
+                    var block = $BookHomeDataBlockContentsFromJson(blockJson);
+                    var books = block.tag?.bookItems ?? [];
                     return Section(
-                      title: block['name'],
+                      title: block.name!,
                       onMore: () {},
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -92,19 +95,18 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin<Home> {
                                   const EdgeInsets.symmetric(horizontal: 15),
                               itemCount: books.length,
                               itemBuilder: (BuildContext context, int index) {
-                                Map item = books[index];
+                                var item = books[index];
                                 return GestureDetector(
                                   onTap: () {
                                     // print(item);
                                   },
-                                  child: Book(
-                                    name: item['name'],
-                                    cover:
-                                        "https://file.ituring.com.cn/SmallCover/${item['coverKey']}",
-                                    author: item['authors'].isEmpty
-                                        ? ''
-                                        : item['authors'][0]['name'],
-                                  ),
+                                  child: BookItem(
+                                      name: item.name!,
+                                      coverKey: item.coverKey!,
+                                      id: item.id!,
+                                      author: item.authors!.isEmpty
+                                          ? ''
+                                          : item.authors?[0]['name'] ?? ''),
                                 );
                               },
                             ),
@@ -185,58 +187,6 @@ class Section extends StatelessWidget {
           ),
           if (child != null) child!
         ],
-      ),
-    );
-  }
-}
-
-class Book extends StatelessWidget {
-  const Book({
-    Key? key,
-    required this.name,
-    required this.cover,
-    this.author = '',
-  }) : super(key: key);
-  final String name;
-  final String cover;
-  final String author;
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(right: 15),
-      child: SizedBox(
-        width: 90,
-        child: Column(
-          children: [
-            Container(
-              margin: const EdgeInsets.only(bottom: 10, top: 20),
-              child: Image.network(cover, width: 90, height: 120),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 5),
-              child: Text(
-                name,
-                maxLines: 2,
-                softWrap: true,
-                style: const TextStyle(
-                  color: Color.fromARGB(255, 36, 39, 51),
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            if (author.isNotEmpty)
-              Text(
-                author,
-                softWrap: false,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  color: Color.fromARGB(255, 107, 109, 122),
-                  fontSize: 14,
-                ),
-              )
-          ],
-        ),
       ),
     );
   }

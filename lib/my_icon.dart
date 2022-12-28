@@ -11,4 +11,8 @@ class MyIcons {
       IconData(0xE91D, fontFamily: 'myIcon', matchTextDirection: true);
   static const IconData search =
       IconData(0xE91C, fontFamily: 'myIcon', matchTextDirection: true);
+  static const IconData recommend =
+      IconData(0xE918, fontFamily: 'myIcon', matchTextDirection: true);
+  static const IconData collect =
+      IconData(0xE917, fontFamily: 'myIcon', matchTextDirection: true);
 }

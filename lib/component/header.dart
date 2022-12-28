@@ -38,7 +38,7 @@ class Header extends StatelessWidget {
                     GestureDetector(
                       onTap: () {
                         var state = IndexPageViewState.of(context);
-                        state.setCurrentPage(3);
+                        state.setCurrentPage(2);
                       },
                       child: const Padding(
                         padding: EdgeInsets.symmetric(horizontal: 10),
