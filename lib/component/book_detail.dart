@@ -263,7 +263,7 @@ class BookHeaderWidget extends StatefulWidget {
 
 class BookPriceWidget extends StatelessWidget {
   BookDetailDataBookEditionPrices? getEbookPrice(BookDetailDataEntity data) {
-    var ebookPrice = (data.bookEditionPrices ?? [])!.where((price) {
+    var ebookPrice = data.bookEditionPrices!.where((price) {
       return price.key == 'Ebook';
     }).toList();
     return ebookPrice.isNotEmpty ? ebookPrice[0] : null;
@@ -295,9 +295,9 @@ class BookPriceWidget extends StatelessWidget {
                   ),
                 ),
               ),
-              if (data!.supportEpub ?? false) const BookFormat('epub'),
-              if (data!.supportMobi ?? false) const BookFormat('mobi'),
-              if (data!.supportPdf ?? false) const BookFormat('pdf'),
+              if (data.supportEpub ?? false) const BookFormat('epub'),
+              if (data.supportMobi ?? false) const BookFormat('mobi'),
+              if (data.supportPdf ?? false) const BookFormat('pdf'),
             ],
           ),
           Text('${ebookPrice.name} 元'),

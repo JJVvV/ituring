@@ -33,6 +33,7 @@ class HttpManager {
         "responseType": ResponseType.plain,
       },
     );
+
     _dio = Dio(baseOptions);
     _dio.interceptors.add(LogInterceptor(responseBody: true));
     _dio.interceptors.add(CommonParameterInterceptor());

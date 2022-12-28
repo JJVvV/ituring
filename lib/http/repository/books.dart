@@ -12,19 +12,22 @@ class BooksTag {
 class BooksParams {
   final String sort;
   final int page;
-  final String tab;
+  String? tag;
+  String? tab;
 
   BooksParams({
     required this.sort,
     required this.page,
-    required this.tab,
+    this.tag,
+    this.tab,
   });
 
   Map<String, dynamic> toMap() {
     return {
       "sort": sort,
       "page": page,
-      "tab": tab,
+      if (tag != null) "tag": tag,
+      if (tab != null) "tab": tab,
     };
   }
 }
@@ -75,6 +78,7 @@ class BooksData {
 
 class BooksRepository {
   static Future<BooksDataEntity?> getBooks(Map<String, dynamic> data) async {
+    print(data);
     try {
       var resultJson = await httpManager.request(Api.GET_BOOKS, data: data);
       var result = $BooksDataEntityFromJson(resultJson);

@@ -6,29 +6,6 @@ import '../component/book.dart';
 import '../component/header.dart';
 import '../component/loading.dart';
 
-class Logger {
-  final String name;
-  bool mute = false;
-
-  // _cache is library-private, thanks to
-  // the _ in front of its name.
-  static final Map<String, Logger> _cache = <String, Logger>{};
-
-  factory Logger(String name) {
-    return _cache.putIfAbsent(name, () => Logger._internal1(name));
-  }
-
-  factory Logger.fromJson(Map<String, Object> json) {
-    return Logger(json['name'].toString());
-  }
-
-  Logger._internal1(this.name);
-
-  void log(String msg) {
-    // if (!mute) print(msg);
-  }
-}
-
 class Books extends StatefulWidget {
   const Books({Key? key}) : super(key: key);
 
@@ -78,10 +55,10 @@ class _BooksState extends State<Books>
   initState() {
     super.initState();
     future = getData();
+
     _scrollController.addListener(() {
       if (_scrollController.position.pixels ==
           _scrollController.position.maxScrollExtent) {
-        //Check whether user scrolled to last position
         if (hasMore && !isLoading) {
           setState(() {
             page++;
