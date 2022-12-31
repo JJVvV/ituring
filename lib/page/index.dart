@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:ituring/page/books.dart';
 import 'package:ituring/page/home.dart';
 import 'package:ituring/page/my.dart';
-import 'package:ituring/widgets/custom_physysics.dart';
 
-import '../my_icon.dart';
+import '../component/my_icon.dart';
 
 class IndexPage extends StatefulWidget {
   const IndexPage({Key? key}) : super(key: key);
@@ -71,7 +70,7 @@ class _IndexPageState extends State<IndexPage> {
                 pageIndex = index;
               });
             },
-            physics: const CustomPhysics(),
+            // physics: const CustomPhysics(),
             controller: _pageController,
             children: const [
               Home(),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ituring/component/animated_future_builder.dart';
 import 'package:ituring/generated/json/book_home_data_entity.g.dart';
 
 import '../component/book.dart';
@@ -58,7 +59,7 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin<Home> {
               ),
             ];
           },
-          body: FutureBuilder(
+          body: AnimatedFutureBuilder(
               future: getData(),
               builder: (BuildContext context, AsyncSnapshot snapshot) {
                 if (snapshot.connectionState != ConnectionState.done) {

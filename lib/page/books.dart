@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ituring/component/animated_future_builder.dart';
 import 'package:ituring/http/repository/books.dart';
 import 'package:ituring/http/repository/books_data_entity.dart';
 
@@ -102,7 +103,7 @@ class _BooksState extends State<Books>
                 ),
               ];
             },
-            body: FutureBuilder(
+            body: AnimatedFutureBuilder(
               future: future,
               builder: (BuildContext context,
                   AsyncSnapshot<BooksDataEntity?> snapshot) {
@@ -116,6 +117,30 @@ class _BooksState extends State<Books>
                 }
 
                 var books = snapshot.data?.bookItems ?? [];
+                if (books.isEmpty) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Image.asset(
+                          'images/noResult@2x.png',
+                          width: 62,
+                          height: 74,
+                        ),
+                        Container(
+                          margin: const EdgeInsets.only(top: 10),
+                          child: const Text(
+                            '没有符合条件的结果',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Color.fromARGB(255, 107, 109, 122),
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
+                  );
+                }
                 if (this.books == null) {
                   this.books = [];
                 }

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:ituring/component/auth.dart';
+import 'package:ituring/component/animated_future_builder.dart';
+import 'package:ituring/component/my.dart';
+import 'package:ituring/http/repository/my.dart';
+import 'package:ituring/http/repository/profile_data_entity.dart';
 
 import '../component/loading.dart';
 
@@ -13,16 +16,13 @@ class My extends StatefulWidget {
 }
 
 class _MyState extends State<My> with AutomaticKeepAliveClientMixin<My> {
-  Future<void> getData() async {
-    // try {
-    //   var response = await MyRepository.getMy();
-    //   List<dynamic> list = response['blockContents'];
-    //   return list.where((item) {
-    //     return item['tagType'] == 0;
-    //   }).toList();
-    // } catch (e) {
-    //   return [];
-    // }
+  Future<ProfileDataEntity?> getData() async {
+    try {
+      var res = await MyRepository.getProfile();
+      return res;
+    } catch (e) {
+      return null;
+    }
   }
 
   @override
@@ -35,8 +35,6 @@ class _MyState extends State<My> with AutomaticKeepAliveClientMixin<My> {
 
   @override
   Widget build(BuildContext context) {
-    var auth = AuthState.of(context);
-    var token = auth.tokenInfo;
     return Stack(
       children: [
         NestedScrollView(
@@ -50,9 +48,11 @@ class _MyState extends State<My> with AutomaticKeepAliveClientMixin<My> {
                 stretch: false,
                 pinned: true,
                 // collapsedHeight: 30,
-                title: Text(
-                  '我的',
-                  style: TextStyle(color: Colors.black),
+                title: const Center(
+                  child: Text(
+                    '我的',
+                    style: TextStyle(color: Colors.black),
+                  ),
                 ),
                 toolbarHeight: 50,
                 // expandedHeight: 20,
@@ -63,17 +63,23 @@ class _MyState extends State<My> with AutomaticKeepAliveClientMixin<My> {
               ),
             ];
           },
-          body: FutureBuilder(
+          body: AnimatedFutureBuilder(
               future: getData(),
-              builder: (BuildContext context, AsyncSnapshot snapshot) {
+              builder: (BuildContext context,
+                  AsyncSnapshot<ProfileDataEntity?> snapshot) {
                 if (snapshot.connectionState != ConnectionState.done) {
                   return const Loading();
                 }
+
                 if (snapshot.hasError) {
                   return const Text('error');
                 }
-                List<dynamic>? blockContents = snapshot.data;
-                return Text('我的${token!.userId}');
+
+                var profile = snapshot.data;
+                if (profile == null) {
+                  return SizedBox();
+                }
+                return MyWidget(data: profile);
               }),
         )
       ],

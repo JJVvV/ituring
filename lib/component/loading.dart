@@ -8,14 +8,10 @@ class Loading extends StatelessWidget {
     return Container(
       color: Colors.white,
       child: const Center(
-        child: Text(
-          'loading',
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: 12,
-            decoration: TextDecoration.none,
-          ),
-        ),
+        child: CircularProgressIndicator(
+            valueColor: AlwaysStoppedAnimation<Color>(
+          Color.fromARGB(255, 44, 89, 183),
+        )),
       ),
     );
   }

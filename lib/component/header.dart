@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../my_icon.dart';
 import '../page/index.dart';
+import 'my_icon.dart';
 
 class Header extends StatelessWidget {
   const Header({
@@ -9,8 +9,6 @@ class Header extends StatelessWidget {
     required this.child,
   }) : super(key: key);
   final Widget child;
-
-  // final Function() onTapCart;
 
   @override
   Widget build(BuildContext context) {

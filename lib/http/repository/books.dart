@@ -1,6 +1,6 @@
 import 'package:ituring/generated/json/books_data_entity.g.dart';
-import 'package:ituring/http/api.dart';
 import 'package:ituring/http/http_manager.dart';
+import 'package:ituring/http/repository/book_detail_data_entity.dart';
 import 'package:ituring/http/repository/books_data_entity.dart';
 
 class BooksTag {
@@ -78,9 +78,8 @@ class BooksData {
 
 class BooksRepository {
   static Future<BooksDataEntity?> getBooks(Map<String, dynamic> data) async {
-    print(data);
     try {
-      var resultJson = await httpManager.request(Api.GET_BOOKS, data: data);
+      var resultJson = await httpManager.request('/Book', data: data);
       var result = $BooksDataEntityFromJson(resultJson);
       return result;
     } catch (e) {
@@ -88,11 +87,11 @@ class BooksRepository {
     }
   }
 
-  static Future<Map<String, dynamic>?> getBook(
+  static Future<BookDetailDataEntity?> getBook(
       Map<String, dynamic> data) async {
     try {
       var result = await httpManager.request('/Book/${data['id']}');
-      return result;
+      return BookDetailDataEntity.fromJson(result);
     } catch (e) {
       print(e);
     }

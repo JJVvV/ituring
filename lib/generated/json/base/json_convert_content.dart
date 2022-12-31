@@ -7,6 +7,7 @@ import 'package:flutter/material.dart' show debugPrint;
 import 'package:ituring/http/repository/book_detail_data_entity.dart';
 import 'package:ituring/http/repository/book_home_data_entity.dart';
 import 'package:ituring/http/repository/books_data_entity.dart';
+import 'package:ituring/http/repository/profile_data_entity.dart';
 
 JsonConvert jsonConvert = JsonConvert();
 typedef JsonConvertFunction<T> = T Function(Map<String, dynamic> json);
@@ -67,6 +68,8 @@ class JsonConvert {
     (BooksDataBookItemsBookEditionPrices).toString():
         BooksDataBookItemsBookEditionPrices.fromJson,
     (BooksDataPagination).toString(): BooksDataPagination.fromJson,
+    (ProfileDataEntity).toString(): ProfileDataEntity.fromJson,
+    (ProfileDataSpaceInfo).toString(): ProfileDataSpaceInfo.fromJson,
   };
 
   T? convert<T>(dynamic value) {
@@ -349,6 +352,18 @@ class JsonConvert {
       return data
           .map<BooksDataPagination>(
               (Map<String, dynamic> e) => BooksDataPagination.fromJson(e))
+          .toList() as M;
+    }
+    if (<ProfileDataEntity>[] is M) {
+      return data
+          .map<ProfileDataEntity>(
+              (Map<String, dynamic> e) => ProfileDataEntity.fromJson(e))
+          .toList() as M;
+    }
+    if (<ProfileDataSpaceInfo>[] is M) {
+      return data
+          .map<ProfileDataSpaceInfo>(
+              (Map<String, dynamic> e) => ProfileDataSpaceInfo.fromJson(e))
           .toList() as M;
     }
 

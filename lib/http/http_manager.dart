@@ -1,7 +1,9 @@
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
+import 'package:ituring/component/auth.dart';
 import 'package:ituring/http/api.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'interceptors/common_parameter_interceptor.dart';
 import 'interceptors/error_interceptor.dart';
@@ -13,7 +15,7 @@ class HttpManager {
   static const CONTENT_TYPE_FORM = "application/x-www-form-urlencoded";
   static const CONTENT_TYPE_IMAGE = "image/*";
 
-  static HttpManager _instance = HttpManager._internal();
+  static final HttpManager _instance = HttpManager._internal();
 
   factory HttpManager.getInstance() => _getInstance();
 
@@ -52,6 +54,16 @@ class HttpManager {
       _dio.options.baseUrl = "";
     } else {
       _dio.options.baseUrl = Api.BASE_URL;
+    }
+
+    if (!_dio.options.headers.containsKey('Authorization')) {
+      var perf = await SharedPreferences.getInstance();
+      var tokenString = perf.getString('token');
+      if (tokenString != null) {
+        var tokenInfo = TokenInfo.fromJson(jsonDecode(tokenString));
+        _dio.options.headers['Authorization'] =
+            'bearer ${tokenInfo.accessToken}';
+      }
     }
 
     Response response;

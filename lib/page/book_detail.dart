@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:ituring/component/animated_future_builder.dart';
 import 'package:ituring/component/book_detail.dart';
+import 'package:ituring/component/my_icon.dart';
 import 'package:ituring/http/repository/book_detail_data_entity.dart';
 import 'package:ituring/http/repository/books.dart';
-import 'package:ituring/my_icon.dart';
 
 import '../component/book.dart';
 import '../component/loading.dart';
@@ -19,23 +20,14 @@ class BookDetail extends StatefulWidget {
 
 class _BookDetailState extends State<BookDetail>
     with PostFrameMixin, TickerProviderStateMixin {
-  bool isLoading = false;
-  BookDetailDataEntity? data;
-  void getData() async {
+  Future<BookDetailDataEntity?> getData() async {
     final args =
         ModalRoute.of(context)!.settings.arguments as BookScreenArguments;
     try {
       var res = await BooksRepository.getBook({"id": args.id});
-      var book = BookDetailDataEntity.fromJson(res as dynamic);
-      setState(() {
-        data = book;
-        isLoading = false;
-      });
-    } catch (e) {
-      setState(() {
-        isLoading = false;
-      });
-    }
+      return res;
+    } catch (e) {}
+    return null;
   }
 
   final ScrollController _scrollController = ScrollController();
@@ -183,56 +175,67 @@ class _BookDetailState extends State<BookDetail>
     );
   }
 
-  Widget renderBody() {
-    if (isLoading || data == null) {
-      return const Loading();
-    }
-    return InheritedBookDetailProvider(
-      data: data!,
-      child: BookDetailWidget(
-        scrollController: _scrollController,
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     print('book?.name');
-    print(data?.name);
+    return AnimatedFutureBuilder(
+      future: getData(),
+      builder: (BuildContext context,
+          AsyncSnapshot<BookDetailDataEntity?> snapshot) {
+        if (snapshot.connectionState != ConnectionState.done) {
+          return const Loading();
+        }
 
-    return Scaffold(
-        bottomNavigationBar: renderBottomBar(),
-        body: Stack(
-          children: [
-            NestedScrollView(
-              physics: const BouncingScrollPhysics(),
-              controller: _scrollController,
-              headerSliverBuilder:
-                  (BuildContext context, bool innerBoxIsScrolled) {
-                return <Widget>[
-                  SliverAppBar(
-                    backgroundColor: Colors.white,
-                    titleSpacing: 0,
-                    stretch: false,
-                    pinned: true,
-                    // collapsedHeight: 30,
-                    title: Text(
-                      data?.name ?? '',
-                      style: TextStyle(color: Colors.black),
-                    ),
-                    toolbarHeight: 50,
-                    // expandedHeight: 20,
-                    forceElevated: innerBoxIsScrolled,
-                    iconTheme: const IconThemeData(
-                      color: Color.fromARGB(255, 107, 109, 122),
+        if (snapshot.hasError) {
+          return const Text('error');
+        }
+
+        var data = snapshot.data;
+
+        if (data == null) {
+          return const Text('error');
+        }
+
+        return Scaffold(
+            bottomNavigationBar: renderBottomBar(),
+            body: Stack(
+              children: [
+                NestedScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  controller: _scrollController,
+                  headerSliverBuilder:
+                      (BuildContext context, bool innerBoxIsScrolled) {
+                    return <Widget>[
+                      SliverAppBar(
+                        backgroundColor: Colors.white,
+                        titleSpacing: 0,
+                        stretch: false,
+                        pinned: true,
+                        // collapsedHeight: 30,
+                        title: Text(
+                          data.name ?? '',
+                          style: const TextStyle(color: Colors.black),
+                        ),
+                        toolbarHeight: 50,
+                        // expandedHeight: 20,
+                        forceElevated: innerBoxIsScrolled,
+                        iconTheme: const IconThemeData(
+                          color: Color.fromARGB(255, 107, 109, 122),
+                        ),
+                      ),
+                    ];
+                  },
+                  body: InheritedBookDetailProvider(
+                    data: data,
+                    child: BookDetailWidget(
+                      scrollController: _scrollController,
                     ),
                   ),
-                ];
-              },
-              body: renderBody(),
-            )
-          ],
-        ));
+                )
+              ],
+            ));
+      },
+    );
   }
 
   @override
