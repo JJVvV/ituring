@@ -15,4 +15,22 @@ class MyIcons {
       IconData(0xE918, fontFamily: 'myIcon', matchTextDirection: true);
   static const IconData collect =
       IconData(0xE917, fontFamily: 'myIcon', matchTextDirection: true);
+  static const IconData ownBook =
+      IconData(0xE914, fontFamily: 'myIcon', matchTextDirection: true);
+  static const IconData ownLesson =
+      IconData(0xE913, fontFamily: 'myIcon', matchTextDirection: true);
+  static const IconData order =
+      IconData(0xE912, fontFamily: 'myIcon', matchTextDirection: true);
+  static const IconData collection =
+      IconData(0xE901, fontFamily: 'myIcon', matchTextDirection: true);
+  static const IconData me10 =
+      IconData(0xE903, fontFamily: 'myIcon', matchTextDirection: true);
+  static const IconData setting =
+      IconData(0xE911, fontFamily: 'myIcon', matchTextDirection: true);
+  static const IconData password =
+      IconData(0xE916, fontFamily: 'myIcon', matchTextDirection: true);
+  static const IconData address =
+      IconData(0xE915, fontFamily: 'myIcon', matchTextDirection: true);
+  static const IconData right =
+      IconData(0xE922, fontFamily: 'myIcon', matchTextDirection: true);
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
+import 'package:ituring/component/background_line.dart';
 
 import '../http/repository/book_detail_data_entity.dart';
 
@@ -235,18 +236,6 @@ class _BookDetailState extends State<BookDetailWidget>
           ),
         ],
       ),
-    );
-  }
-}
-
-class BackgroundLine extends StatelessWidget {
-  const BackgroundLine({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      color: const Color.fromARGB(255, 248, 248, 248),
-      height: 10,
     );
   }
 }

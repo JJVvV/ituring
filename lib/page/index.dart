@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ituring/page/books.dart';
+import 'package:ituring/page/cart.dart';
 import 'package:ituring/page/home.dart';
 import 'package:ituring/page/my.dart';
 
@@ -75,7 +76,7 @@ class _IndexPageState extends State<IndexPage> {
             children: const [
               Home(),
               Books(),
-              Text('购物车'),
+              Cart(),
               My(),
             ],
           ),

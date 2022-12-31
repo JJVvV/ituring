@@ -20,6 +20,15 @@ class BookDetail extends StatefulWidget {
 
 class _BookDetailState extends State<BookDetail>
     with PostFrameMixin, TickerProviderStateMixin {
+  late final AnimationController _controller = AnimationController(
+    duration: const Duration(milliseconds: 300),
+    vsync: this,
+  );
+  late final Animation<Offset> _offsetAnimation = Tween<Offset>(
+    begin: const Offset(0, 1.5),
+    end: const Offset(0, 0),
+  ).animate(_controller);
+
   Future<BookDetailDataEntity?> getData() async {
     final args =
         ModalRoute.of(context)!.settings.arguments as BookScreenArguments;
@@ -35,6 +44,19 @@ class _BookDetailState extends State<BookDetail>
   initState() {
     super.initState();
     postFrame(getData);
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels >= 40) {
+        if (_controller.status == AnimationStatus.forward) {
+          return;
+        }
+        _controller.forward();
+      } else {
+        if (_controller.status == AnimationStatus.reverse) {
+          return;
+        }
+        _controller.reverse();
+      }
+    });
   }
 
   Widget renderBottomBar() {
@@ -99,48 +121,51 @@ class _BookDetailState extends State<BookDetail>
           ),
           InkWell(
             onTap: () {},
-            child: Container(
-              color: Color.fromARGB(255, 44, 89, 183),
-              height: 50,
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  RichText(
-                    text: TextSpan(children: [
-                      const WidgetSpan(
-                        child: Text(
-                          '购书袋',
-                          style: TextStyle(
-                            height: 1,
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      WidgetSpan(
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 2, horizontal: 8),
-                          margin: EdgeInsets.only(left: 5),
-                          decoration: const BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.all(Radius.circular(99)),
-                          ),
-                          child: const Text(
-                            '3',
+            child: Ink(
+              color: const Color.fromARGB(255, 44, 89, 183),
+              child: Container(
+                height: 50,
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    RichText(
+                      text: TextSpan(children: [
+                        const WidgetSpan(
+                          child: Text(
+                            '购书袋',
                             style: TextStyle(
                               height: 1,
-                              color: Color.fromARGB(255, 44, 89, 183),
-                              fontSize: 14,
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
                         ),
-                      ),
-                    ]),
-                  )
-                ],
+                        WidgetSpan(
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 2, horizontal: 8),
+                            margin: EdgeInsets.only(left: 5),
+                            decoration: const BoxDecoration(
+                              color: Colors.white,
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(99)),
+                            ),
+                            child: const Text(
+                              '3',
+                              style: TextStyle(
+                                height: 1,
+                                color: Color.fromARGB(255, 44, 89, 183),
+                                fontSize: 14,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ]),
+                    )
+                  ],
+                ),
               ),
             ),
           ),
@@ -149,23 +174,25 @@ class _BookDetailState extends State<BookDetail>
               onTap: () {
                 print('购买');
               },
-              child: Container(
-                color: Color.fromARGB(255, 238, 172, 87),
-                height: 50,
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: const [
-                    Text(
-                      '购买',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    )
-                  ],
+              child: Ink(
+                color: const Color.fromARGB(255, 238, 172, 87),
+                child: Container(
+                  height: 50,
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: const [
+                      Text(
+                        '购买',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      )
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -212,9 +239,15 @@ class _BookDetailState extends State<BookDetail>
                         stretch: false,
                         pinned: true,
                         // collapsedHeight: 30,
-                        title: Text(
-                          data.name ?? '',
-                          style: const TextStyle(color: Colors.black),
+                        title: SlideTransition(
+                          position: _offsetAnimation,
+                          child: Text(
+                            data.name,
+                            style: const TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ),
                         toolbarHeight: 50,
                         // expandedHeight: 20,
