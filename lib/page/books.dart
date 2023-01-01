@@ -73,11 +73,10 @@ class _BooksState extends State<Books>
     var nextPageTrigger = 0.8 * innerController.position.maxScrollExtent;
     if (innerController.position.pixels > nextPageTrigger) {
       if (hasMore && !isLoading) {
-        setState(() {
-          page++;
-          isLoading = true;
-          future = getData(); //load more data
-        });
+        isLoading = true;
+        page++;
+        future = getData(); //load more data
+        setState(() {});
       }
     }
   }
