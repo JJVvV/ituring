@@ -27,30 +27,64 @@ class Book extends StatelessWidget {
         child: Column(
           children: [
             Container(
+              alignment: Alignment.bottomCenter,
               margin: const EdgeInsets.only(bottom: 10, top: 20),
-              child: Image.network(cover, width: 90, height: 120),
+              width: 90,
+              height: 120,
+              child: Container(
+                decoration: BoxDecoration(
+                  boxShadow: [
+                    // 4px 4px 14px 0 rgb(0 0 0 / 7%), 2px 2px 6px 0 rgb(0 0 0 / 8%)
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.07),
+                      spreadRadius: 0,
+                      blurRadius: 14,
+                      offset: const Offset(4, 4), // changes position of shadow
+                    ),
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.08),
+                      spreadRadius: 0,
+                      blurRadius: 6,
+                      offset: const Offset(2, 2), // changes position of shadow
+                    ),
+                  ],
+                ),
+                child: Image.network(
+                  cover,
+                  width: 90,
+                  fit: BoxFit.fitWidth,
+                ),
+              ),
             ),
-            Padding(
+            Container(
               padding: const EdgeInsets.only(bottom: 5),
+              alignment: Alignment.centerLeft,
               child: Text(
                 name,
                 maxLines: 2,
+                textAlign: TextAlign.left,
                 softWrap: true,
                 style: const TextStyle(
                   color: Color.fromARGB(255, 36, 39, 51),
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
+                  decoration: TextDecoration.none,
                 ),
               ),
             ),
             if (author.isNotEmpty)
-              Text(
-                author,
-                softWrap: false,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  color: Color.fromARGB(255, 107, 109, 122),
-                  fontSize: 14,
+              Container(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  author,
+                  softWrap: false,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.left,
+                  style: const TextStyle(
+                    color: Color.fromARGB(255, 107, 109, 122),
+                    fontSize: 14,
+                    decoration: TextDecoration.none,
+                  ),
                 ),
               )
           ],

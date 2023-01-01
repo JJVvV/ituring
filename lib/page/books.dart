@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:ituring/component/animated_future_builder.dart';
 import 'package:ituring/http/repository/books.dart';
 import 'package:ituring/http/repository/books_data_entity.dart';
+import 'package:ituring/mixin/post_frame_mixin.dart';
 
 import '../component/book.dart';
 import '../component/header.dart';
@@ -17,7 +18,7 @@ class Books extends StatefulWidget {
 }
 
 class _BooksState extends State<Books>
-    with AutomaticKeepAliveClientMixin<Books> {
+    with PostFrameMixin, AutomaticKeepAliveClientMixin<Books> {
   BooksTag? currentTag;
   List<BooksTag> tags = [];
   int page = 1;
@@ -56,19 +57,34 @@ class _BooksState extends State<Books>
   initState() {
     super.initState();
     future = getData();
-
-    _scrollController.addListener(() {
-      if (_scrollController.position.pixels ==
-          _scrollController.position.maxScrollExtent) {
-        if (hasMore && !isLoading) {
-          setState(() {
-            page++;
-            isLoading = true;
-            future = getData(); //load more data
-          });
-        }
-      }
+    // _scrollController.addListener(_onScroll);
+    postFrame(() {
+      innerController.addListener(_onScroll);
     });
+  }
+
+  @override
+  dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  _onScroll() {
+    var nextPageTrigger = 0.8 * innerController.position.maxScrollExtent;
+    if (innerController.position.pixels > nextPageTrigger) {
+      if (hasMore && !isLoading) {
+        setState(() {
+          page++;
+          isLoading = true;
+          future = getData(); //load more data
+        });
+      }
+    }
+  }
+
+  final GlobalKey<NestedScrollViewState> globalKey = GlobalKey();
+  ScrollController get innerController {
+    return globalKey.currentState!.innerController;
   }
 
   @override
@@ -87,17 +103,20 @@ class _BooksState extends State<Books>
       child: Stack(
         children: [
           NestedScrollView(
+            key: globalKey,
             physics: const BouncingScrollPhysics(),
+            floatHeaderSlivers: true,
             controller: _scrollController,
             headerSliverBuilder:
                 (BuildContext context, bool innerBoxIsScrolled) {
               return <Widget>[
                 SliverAppBar(
-                  backgroundColor: Color.fromARGB(255, 44, 89, 183),
+                  backgroundColor: const Color.fromARGB(255, 44, 89, 183),
                   titleSpacing: 0,
                   stretch: false,
                   pinned: false,
-                  title: Header(child: IndexHeader()),
+                  floating: true,
+                  title: const Header(child: IndexHeader()),
                   toolbarHeight: 110,
                   forceElevated: innerBoxIsScrolled,
                 ),
@@ -156,6 +175,7 @@ class _BooksState extends State<Books>
                 return GridView.count(
                   // primary: false,
                   shrinkWrap: true,
+                  controller: innerController,
                   physics: const ClampingScrollPhysics(),
                   padding:
                       const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
@@ -170,7 +190,7 @@ class _BooksState extends State<Books>
                       id: item.id!,
                       author: item.authors!.isEmpty
                           ? ''
-                          : item.authors?[0]['name'] ?? '',
+                          : item.authors?[0]?['name'] ?? '',
                     );
                   }).toList(),
                 );

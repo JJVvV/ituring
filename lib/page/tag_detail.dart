@@ -62,8 +62,8 @@ class _BooksState extends State<TagDetail>
     future = getData();
 
     _scrollController.addListener(() {
-      if (_scrollController.position.pixels ==
-          _scrollController.position.maxScrollExtent) {
+      var nextPageTrigger = 0.8 * _scrollController.position.maxScrollExtent;
+      if (_scrollController.position.pixels > nextPageTrigger) {
         if (hasMore && !isLoading) {
           setState(() {
             page++;
@@ -105,17 +105,19 @@ class _BooksState extends State<TagDetail>
           children: [
             NestedScrollView(
               physics: const BouncingScrollPhysics(),
+              floatHeaderSlivers: true,
               controller: _scrollController,
               headerSliverBuilder:
                   (BuildContext context, bool innerBoxIsScrolled) {
                 return <Widget>[
                   SliverAppBar(
-                    backgroundColor: Color.fromARGB(255, 44, 89, 183),
+                    backgroundColor: const Color.fromARGB(255, 44, 89, 183),
                     titleSpacing: 0,
                     stretch: false,
                     pinned: false,
+                    floating: true,
                     title: Text(currentTag?.label ?? ''),
-                    toolbarHeight: 110,
+                    toolbarHeight: 70,
                     forceElevated: innerBoxIsScrolled,
                   ),
                 ];
@@ -159,7 +161,7 @@ class _BooksState extends State<TagDetail>
                     children: this.books!.map((item) {
                       return BookItem(
                         name: item.name!,
-                        coverKey: item.coverKey!,
+                        coverKey: item.coverKey ?? '',
                         id: item.id!,
                         author: item.authors!.isEmpty
                             ? ''
