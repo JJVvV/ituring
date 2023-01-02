@@ -204,7 +204,6 @@ class _BookDetailState extends State<BookDetail>
 
   @override
   Widget build(BuildContext context) {
-    print('book?.name');
     return AnimatedFutureBuilder(
       future: getData(),
       builder: (BuildContext context,

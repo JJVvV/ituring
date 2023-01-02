@@ -7,6 +7,7 @@ import 'package:flutter/material.dart' show debugPrint;
 import 'package:ituring/http/repository/book_detail_data_entity.dart';
 import 'package:ituring/http/repository/book_home_data_entity.dart';
 import 'package:ituring/http/repository/books_data_entity.dart';
+import 'package:ituring/http/repository/cart_data_entity.dart';
 import 'package:ituring/http/repository/profile_data_entity.dart';
 
 JsonConvert jsonConvert = JsonConvert();
@@ -68,6 +69,8 @@ class JsonConvert {
     (BooksDataBookItemsBookEditionPrices).toString():
         BooksDataBookItemsBookEditionPrices.fromJson,
     (BooksDataPagination).toString(): BooksDataPagination.fromJson,
+    (CartDataEntity).toString(): CartDataEntity.fromJson,
+    (CartDataInvalidCartItems).toString(): CartDataInvalidCartItems.fromJson,
     (ProfileDataEntity).toString(): ProfileDataEntity.fromJson,
     (ProfileDataSpaceInfo).toString(): ProfileDataSpaceInfo.fromJson,
   };
@@ -352,6 +355,18 @@ class JsonConvert {
       return data
           .map<BooksDataPagination>(
               (Map<String, dynamic> e) => BooksDataPagination.fromJson(e))
+          .toList() as M;
+    }
+    if (<CartDataEntity>[] is M) {
+      return data
+          .map<CartDataEntity>(
+              (Map<String, dynamic> e) => CartDataEntity.fromJson(e))
+          .toList() as M;
+    }
+    if (<CartDataInvalidCartItems>[] is M) {
+      return data
+          .map<CartDataInvalidCartItems>(
+              (Map<String, dynamic> e) => CartDataInvalidCartItems.fromJson(e))
           .toList() as M;
     }
     if (<ProfileDataEntity>[] is M) {

@@ -70,7 +70,6 @@ class _BooksState extends State<Books>
 
   @override
   Widget build(BuildContext context) {
-    print('*************');
     print(innerController);
     return TagState(
       setCurrent: (item) {

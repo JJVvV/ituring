@@ -104,7 +104,7 @@ class _BooksState extends State<TagDetail>
                 ];
               },
               body: currentTag == null
-                  ? SizedBox()
+                  ? const SizedBox()
                   : LoadBooks(
                       defaultParams: {
                         "page": 1,

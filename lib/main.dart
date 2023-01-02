@@ -8,10 +8,9 @@ import 'package:ituring/page/login.dart';
 import 'package:ituring/page/tag_detail.dart';
 import 'package:ituring/theme/app_theme.dart';
 
-import 'page/cart.dart';
-
 void main() {
   // WidgetsFlutterBinding.ensureInitialized();
+
   // SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
   //   statusBarColor: Colors.transparent, // transparent status bar
   // ));
@@ -65,7 +64,7 @@ class _AppState extends State<MyApp> {
         '/': (context) => LoginProvider(child: const IndexPage()),
         '/book': (context) => LoginProvider(child: const BookDetail()),
         '/tag': (context) => LoginProvider(child: TagDetail()),
-        '/cart': (context) => LoginProvider(child: const Cart()),
+        // '/cart': (context) => LoginProvider(child: Cart()),
         '/login': (context) => const Login(),
       },
     );

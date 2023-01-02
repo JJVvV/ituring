@@ -33,4 +33,12 @@ class MyIcons {
       IconData(0xE915, fontFamily: 'myIcon', matchTextDirection: true);
   static const IconData right =
       IconData(0xE922, fontFamily: 'myIcon', matchTextDirection: true);
+  static const IconData choseN =
+      IconData(0xE90E, fontFamily: 'myIcon', matchTextDirection: true);
+  static const IconData choseS =
+      IconData(0xE924, fontFamily: 'myIcon', matchTextDirection: true);
+  static const IconData minus =
+      IconData(0xE926, fontFamily: 'myIcon', matchTextDirection: true);
+  static const IconData plus =
+      IconData(0xE925, fontFamily: 'myIcon', matchTextDirection: true);
 }
