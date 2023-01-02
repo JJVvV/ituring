@@ -37,7 +37,7 @@ class HttpManager {
     );
 
     _dio = Dio(baseOptions);
-    // _dio.interceptors.add(LogInterceptor(responseBody: true));
+    _dio.interceptors.add(LogInterceptor(responseBody: true));
     _dio.interceptors.add(CommonParameterInterceptor());
     _dio.interceptors.add(ErrorInterceptors(_dio));
   }

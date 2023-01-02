@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:ituring/component/animated_future_builder.dart';
+import 'package:ituring/component/load_books.dart';
 import 'package:ituring/http/repository/books.dart';
 import 'package:ituring/http/repository/books_data_entity.dart';
 import 'package:ituring/mixin/post_frame_mixin.dart';
+import 'package:ituring/model/page_data.dart';
 
-import '../component/book.dart';
 import '../component/header.dart';
-import '../component/loading.dart';
 
 class Books extends StatefulWidget {
   const Books({Key? key}) : super(key: key);
@@ -23,43 +22,39 @@ class _BooksState extends State<Books>
   List<BooksTag> tags = [];
   int page = 1;
   String sort = 'new';
-  Future<BooksDataEntity?>? future;
-  List<BooksDataBookItems>? books;
-
-  Future<BooksDataEntity?> getData() async {
+  Future<PageData<BooksDataBookItems>?> getData(
+      Map<String, dynamic>? params) async {
     if (currentTag == null || tags.isEmpty) {
       tags = await BooksRepository.getTags();
       currentTag = tags[0];
       setState(() {});
     }
     try {
-      var value = await BooksRepository.getBooks(BooksParams(
-        sort: sort,
-        page: page,
-        tab: currentTag!.value,
-      ).toMap());
-      hasMore = value?.pagination?.hasNextPage ?? false;
-      isLoading = false;
-      return value;
+      var value = await BooksRepository.getBooks(params!);
+      // BooksParams(
+      //   sort: sort,
+      //   page: page,
+      //   tab: currentTag!.value,
+      // ).toMap()
+      var hasMore = value?.pagination?.hasNextPage ?? false;
+      var data = value?.bookItems ?? [];
+      return PageData(data: data, hasNextPage: hasMore);
     } catch (e) {
       print('获取失败');
       print(e);
-      isLoading = false;
-      return null;
     }
   }
 
   final ScrollController _scrollController = ScrollController();
-  bool hasMore = true;
-  bool isLoading = false;
 
   @override
   initState() {
     super.initState();
-    future = getData();
-    // _scrollController.addListener(_onScroll);
     postFrame(() {
-      innerController.addListener(_onScroll);
+      setState(() {
+        print(globalKey.currentState?.innerController);
+        innerController = globalKey.currentState?.innerController;
+      });
     });
   }
 
@@ -69,33 +64,22 @@ class _BooksState extends State<Books>
     super.dispose();
   }
 
-  _onScroll() {
-    var nextPageTrigger = 0.8 * innerController.position.maxScrollExtent;
-    if (innerController.position.pixels > nextPageTrigger) {
-      if (hasMore && !isLoading) {
-        isLoading = true;
-        page++;
-        future = getData(); //load more data
-        setState(() {});
-      }
-    }
-  }
-
   final GlobalKey<NestedScrollViewState> globalKey = GlobalKey();
-  ScrollController get innerController {
-    return globalKey.currentState!.innerController;
-  }
+  final GlobalKey<LoadBooksState> loadBooksKey = GlobalKey();
+  ScrollController? innerController;
 
   @override
   Widget build(BuildContext context) {
+    print('*************');
+    print(innerController);
     return TagState(
       setCurrent: (item) {
-        setState(() {
-          currentTag = item;
-          page = 1;
-          books = null;
-          future = getData();
+        currentTag = item;
+        // reset();
+        loadBooksKey.currentState?.reset({
+          "tab": currentTag!.value,
         });
+        setState(() {});
       },
       tags: tags,
       currentTag: currentTag,
@@ -121,79 +105,16 @@ class _BooksState extends State<Books>
                 ),
               ];
             },
-            body: AnimatedFutureBuilder(
-              future: future,
-              builder: (BuildContext context,
-                  AsyncSnapshot<BooksDataEntity?> snapshot) {
-                if (snapshot.connectionState != ConnectionState.done &&
-                    this.books == null) {
-                  return const Loading();
-                }
-
-                if (snapshot.hasError) {
-                  return const Text('error');
-                }
-
-                var books = snapshot.data?.bookItems ?? [];
-                if (books.isEmpty) {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Image.asset(
-                          'images/noResult@2x.png',
-                          width: 62,
-                          height: 74,
-                        ),
-                        Container(
-                          margin: const EdgeInsets.only(top: 10),
-                          child: const Text(
-                            '没有符合条件的结果',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Color.fromARGB(255, 107, 109, 122),
-                            ),
-                          ),
-                        )
-                      ],
-                    ),
-                  );
-                }
-                if (this.books == null) {
-                  this.books = [];
-                }
-                for (var item in books) {
-                  this.books!.add(item);
-                }
-                if (books.isEmpty) {
-                  return const SizedBox();
-                }
-
-                var childAspectRatio = 1 / 2.25;
-
-                return GridView.count(
-                  // primary: false,
-                  shrinkWrap: true,
-                  controller: innerController,
-                  physics: const ClampingScrollPhysics(),
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
-                  crossAxisSpacing: 20,
-                  mainAxisSpacing: 0,
-                  crossAxisCount: 3,
-                  childAspectRatio: childAspectRatio,
-                  children: this.books!.map((item) {
-                    return BookItem(
-                      name: item.name!,
-                      coverKey: item.coverKey!,
-                      id: item.id!,
-                      author: item.authors!.isEmpty
-                          ? ''
-                          : item.authors?[0]?['name'] ?? '',
-                    );
-                  }).toList(),
-                );
+            body: LoadBooks(
+              key: loadBooksKey,
+              defaultParams: const {
+                "page": 1,
+                "sort": 'new',
+                "tab": "all",
               },
+              buff: 80,
+              controller: innerController,
+              getData: getData,
             ),
           )
         ],

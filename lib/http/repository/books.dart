@@ -78,6 +78,9 @@ class BooksData {
 
 class BooksRepository {
   static Future<BooksDataEntity?> getBooks(Map<String, dynamic> data) async {
+    print('参数');
+
+    print(data);
     try {
       var resultJson = await httpManager.request('/Book', data: data);
       var result = $BooksDataEntityFromJson(resultJson);

@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:ituring/component/animated_future_builder.dart';
+import 'package:ituring/component/load_books.dart';
 import 'package:ituring/http/repository/books.dart';
 import 'package:ituring/http/repository/books_data_entity.dart';
-
-import '../component/book.dart';
-import '../component/loading.dart';
+import 'package:ituring/mixin/post_frame_mixin.dart';
+import 'package:ituring/model/page_data.dart';
 
 class TagScreenArguments {
   final String name;
@@ -23,66 +22,49 @@ class TagDetail extends StatefulWidget {
 }
 
 class _BooksState extends State<TagDetail>
-    with AutomaticKeepAliveClientMixin<TagDetail> {
+    with PostFrameMixin, AutomaticKeepAliveClientMixin<TagDetail> {
   BooksTag? currentTag;
   List<BooksTag> tags = [];
   int page = 1;
   String sort = 'new';
-  Future<BooksDataEntity?>? future;
-  List<BooksDataBookItems>? books;
 
-  Future<BooksDataEntity?> getData() async {
-    if (currentTag == null) {
-      return null;
-    }
+  Future<PageData<BooksDataBookItems>?> getData(
+      Map<String, dynamic>? params) async {
     try {
-      var value = await BooksRepository.getBooks(BooksParams(
-        sort: sort,
-        page: page,
-        tag: currentTag!.value,
-      ).toMap());
-      hasMore = value?.pagination?.hasNextPage ?? false;
-      isLoading = false;
-      return value;
+      var value = await BooksRepository.getBooks(params!);
+      var hasMore = value?.pagination?.hasNextPage ?? false;
+      var data = value?.bookItems ?? [];
+      return PageData(data: data, hasNextPage: hasMore);
     } catch (e) {
       print('获取失败');
       print(e);
-      isLoading = false;
-      return null;
     }
   }
 
   final ScrollController _scrollController = ScrollController();
   bool hasMore = true;
   bool isLoading = false;
+  ScrollController? innerController;
 
   @override
   initState() {
     super.initState();
-    future = getData();
-
-    _scrollController.addListener(() {
-      var nextPageTrigger = 0.8 * _scrollController.position.maxScrollExtent;
-      if (_scrollController.position.pixels > nextPageTrigger) {
-        if (hasMore && !isLoading) {
-          setState(() {
-            page++;
-            isLoading = true;
-            future = getData(); //load more data
-          });
-        }
-      }
-    });
-
     Future.delayed(Duration.zero, () {
       final args =
           ModalRoute.of(context)!.settings.arguments as TagScreenArguments;
       setState(() {
         currentTag = BooksTag(args.name, args.id);
-        future = getData();
+      });
+    });
+    postFrame(() {
+      setState(() {
+        print(globalKey.currentState?.innerController);
+        innerController = globalKey.currentState?.innerController;
       });
     });
   }
+
+  final GlobalKey<NestedScrollViewState> globalKey = GlobalKey();
 
   @override
   Widget build(BuildContext context) {
@@ -94,9 +76,7 @@ class _BooksState extends State<TagDetail>
         setCurrent: (item) {
           setState(() {
             currentTag = item;
-            page = 1;
-            books = null;
-            future = getData();
+            // reset();
           });
         },
         tags: tags,
@@ -104,6 +84,7 @@ class _BooksState extends State<TagDetail>
         child: Stack(
           children: [
             NestedScrollView(
+              key: globalKey,
               physics: const BouncingScrollPhysics(),
               floatHeaderSlivers: true,
               controller: _scrollController,
@@ -122,55 +103,18 @@ class _BooksState extends State<TagDetail>
                   ),
                 ];
               },
-              body: AnimatedFutureBuilder(
-                future: future,
-                builder: (BuildContext context,
-                    AsyncSnapshot<BooksDataEntity?> snapshot) {
-                  if (snapshot.connectionState != ConnectionState.done &&
-                      this.books == null) {
-                    return const Loading();
-                  }
-
-                  if (snapshot.hasError) {
-                    return const Text('error');
-                  }
-
-                  var books = snapshot.data?.bookItems ?? [];
-                  if (this.books == null) {
-                    this.books = [];
-                  }
-                  for (var item in books) {
-                    this.books!.add(item);
-                  }
-                  if (books.isEmpty) {
-                    return const SizedBox();
-                  }
-
-                  var childAspectRatio = 1 / 2.25;
-
-                  return GridView.count(
-                    // primary: false,
-                    shrinkWrap: true,
-                    physics: const ClampingScrollPhysics(),
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 15, horizontal: 20),
-                    crossAxisSpacing: 20,
-                    mainAxisSpacing: 0,
-                    crossAxisCount: 3,
-                    childAspectRatio: childAspectRatio,
-                    children: this.books!.map((item) {
-                      return BookItem(
-                        name: item.name!,
-                        coverKey: item.coverKey ?? '',
-                        id: item.id!,
-                        author: item.authors!.isEmpty
-                            ? ''
-                            : item.authors?[0]['name'] ?? '',
-                      );
-                    }).toList(),
-                  );
-                },
-              ),
+              body: currentTag == null
+                  ? SizedBox()
+                  : LoadBooks(
+                      defaultParams: {
+                        "page": 1,
+                        "sort": 'new',
+                        "tag": currentTag!.value,
+                      },
+                      buff: 80,
+                      controller: innerController,
+                      getData: getData,
+                    ),
             )
           ],
         ),
