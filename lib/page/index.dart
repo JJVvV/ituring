@@ -121,8 +121,9 @@ class BottomBar extends StatelessWidget {
             ? const Color.fromARGB(255, 44, 89, 183)
             : const Color.fromARGB(255, 107, 109, 122);
         return GestureDetector(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
+          child: Container(
+            color: Colors.white,
+            padding: const EdgeInsets.symmetric(horizontal: 30),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
