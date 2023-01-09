@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:ituring/component/animated_future_builder.dart';
 import 'package:ituring/http/repository/books_data_entity.dart';
 import 'package:ituring/mixin/post_frame_mixin.dart';
 import 'package:ituring/model/page_data.dart';
@@ -33,7 +32,7 @@ class LoadBooksState extends State<LoadBooks>
   int page = 1;
   String sort = 'new';
   List<BooksDataBookItems>? books;
-  Future<List<BooksDataBookItems>?>? future;
+  // Future<List<BooksDataBookItems>?>? future;
   Map<String, dynamic> params = {};
   Future<List<BooksDataBookItems>?> getData(Map<String, dynamic>? p) async {
     Map<String, dynamic> newParams = Map.from(params);
@@ -53,31 +52,33 @@ class LoadBooksState extends State<LoadBooks>
       var ret = await widget.getData(newParams);
       params = newParams;
       isLoading = false;
-
+      hasError = false;
       hasMore = ret?.hasNextPage ?? false;
       var newBooks = ret?.data ?? [];
+
       books ??= [];
+
       for (var item in newBooks) {
         books!.add(item);
       }
-
-      return books;
     } catch (e) {
       print('获取失败');
       print(e);
       isLoading = false;
-      return null;
+      hasError = true;
     }
+    setState(() {});
   }
 
   bool hasMore = true;
-  bool isLoading = false;
+  bool isLoading = true;
+  bool hasError = false;
 
   @override
   initState() {
     params = widget.defaultParams;
     super.initState();
-    future = getData(null);
+    getData(null);
     postFrame(() {
       widget.controller?.addListener(_onScroll);
     });
@@ -101,8 +102,7 @@ class LoadBooksState extends State<LoadBooks>
     page = 1;
     books = null;
     isLoading = true;
-    future = getData(params);
-    setState(() {});
+    getData(params);
   }
 
   _onScroll() {
@@ -115,76 +115,60 @@ class LoadBooksState extends State<LoadBooks>
       if (hasMore && !isLoading) {
         isLoading = true;
         page = page + 1;
-        future = getData(null);
-        setState(() {});
+        getData(null);
       }
     }
   }
 
+  Future<void> _onRefresh() async {
+    page = 1;
+    books = null;
+    // isLoading = true;
+    getData(null);
+  }
+
   @override
   Widget build(BuildContext context) {
-    return AnimatedFutureBuilder(
-      future: future,
-      builder: (BuildContext context,
-          AsyncSnapshot<List<BooksDataBookItems>?> snapshot) {
-        if (snapshot.connectionState != ConnectionState.done &&
-            this.books == null) {
-          return const Loading();
-        }
+    return RefreshIndicator(
+      onRefresh: _onRefresh,
+      child: render(),
+    );
+  }
 
-        if (snapshot.hasError) {
-          return const Text('error');
-        }
-
-        var books = snapshot.data ?? [];
-        if (books.isEmpty) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Image.asset(
-                  'images/noResult@2x.png',
-                  width: 62,
-                  height: 74,
-                ),
-                Container(
-                  margin: const EdgeInsets.only(top: 10),
-                  child: const Text(
-                    '没有符合条件的结果',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Color.fromARGB(255, 107, 109, 122),
-                    ),
-                  ),
-                )
-              ],
-            ),
-          );
-        }
-
-        var childAspectRatio = 1 / 2.25;
-
-        return GridView.count(
-          // primary: false,
-          shrinkWrap: true,
-          controller: widget.controller,
-          physics: const ClampingScrollPhysics(),
-          padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
-          crossAxisSpacing: 20,
-          mainAxisSpacing: 0,
-          crossAxisCount: 3,
-          childAspectRatio: childAspectRatio,
-          children: books.map((item) {
-            return BookItem(
-              name: item.name!,
-              coverKey: item.coverKey!,
-              id: item.id!,
-              author:
-                  item.authors!.isEmpty ? '' : item.authors?[0]?['name'] ?? '',
-            );
-          }).toList(),
+  Widget render() {
+    Widget child;
+    if (isLoading && books == null) {
+      child = const Loading();
+    } else if (hasError) {
+      child = const Text('error');
+    } else if (books == null) {
+      child = const SizedBox();
+    } else {
+      var childAspectRatio = 1 / 2.25;
+      var children = books!.map((item) {
+        return BookItem(
+          name: item.name!,
+          coverKey: item.coverKey!,
+          id: item.id!,
+          author: item.authors!.isEmpty ? '' : item.authors?[0]?['name'] ?? '',
         );
-      },
+      }).toList();
+      child = GridView.count(
+        // primary: false,
+        shrinkWrap: true,
+        controller: widget.controller,
+        physics: const ClampingScrollPhysics(),
+        padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+        crossAxisSpacing: 20,
+        mainAxisSpacing: 0,
+        crossAxisCount: 3,
+        childAspectRatio: childAspectRatio,
+        children: children,
+      );
+    }
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 300),
+      child: child,
     );
   }
 

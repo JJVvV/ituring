@@ -30,6 +30,10 @@ class CartState extends State<Cart> {
     setState(() {});
   }
 
+  Future<void> _onRefresh() async {
+    return getData();
+  }
+
   Set<int> checkedSet = {};
 
   Widget renderBody(BuildContext context) {
@@ -123,27 +127,31 @@ class CartState extends State<Cart> {
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: NestedScrollView(
-          // floatHeaderSlivers: true,
-          physics: const BouncingScrollPhysics(),
-          headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
-            return <Widget>[
-              SliverAppBar(
-                backgroundColor: Colors.white,
-                titleSpacing: 0,
-                title: const Center(
-                  child: Text(
-                    '购物车',
-                    style: TextStyle(
-                      color: Colors.black,
-                    ),
+        // floatHeaderSlivers: true,
+        physics: const BouncingScrollPhysics(),
+        headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
+          return <Widget>[
+            SliverAppBar(
+              backgroundColor: Colors.white,
+              titleSpacing: 0,
+              title: const Center(
+                child: Text(
+                  '购物车',
+                  style: TextStyle(
+                    color: Colors.black,
                   ),
                 ),
-                toolbarHeight: 50,
-                forceElevated: innerBoxIsScrolled,
               ),
-            ];
-          },
-          body: renderBody(context)),
+              toolbarHeight: 50,
+              forceElevated: innerBoxIsScrolled,
+            ),
+          ];
+        },
+        body: RefreshIndicator(
+          onRefresh: _onRefresh,
+          child: renderBody(context),
+        ),
+      ),
       bottomNavigationBar: isLoading
           ? const SizedBox(
               height: 51,
